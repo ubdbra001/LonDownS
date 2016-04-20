@@ -1,8 +1,8 @@
-% New Script to nalyse MEM tasks for ET tasks on the LonDownS Alzheimer's Disease in Down syndrome Study.
+% New Script to analyse MEM tasks for ET tasks on the LonDownS Alzheimer's Disease in Down syndrome Study.
 % V0.4 - 19/04/16
 % Dan Brady
 
-filename     = 'event_markers.txt';                                        % Set filename
+filename     = 'Event_markers.txt';                                        % Set filename
 eventMarkers = importdata(filename);                                       % Load markers in file
 ADDS_ET_data = struct();                                                   % Prep main output variable
 
@@ -28,7 +28,7 @@ if ~isempty(eventsToFind)                                                  % Che
         ADDS_ET_data.(folders(folder_n).name) = struct();                  % Create fieldname for the participant in output data variable
         cd(p_path)                                                         % Change to that path
         try
-            dataFilePaths = subdir('*Buffer.mat');                         % Try to generate paths for the ET data for that participant
+            dataFilePaths = subdir('*Buffer_T1.mat');                         % Try to generate paths for the ET data for that participant
         catch                                                              % If there is an error
             ADDS_ET_data.(folders(folder_n).name) = 'No Data';             % Make a note of the lack of data
             fprintf('\nNo data found for %s\n\n', folders(folder_n).name)
