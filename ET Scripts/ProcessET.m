@@ -14,7 +14,7 @@ ADDS_ET_data = struct();                                                   % Pre
 % Modify header based of analyses indicated
 
 output_FName = sprintf('ADDS_ET_output_%s.csv', datestr(now,'dd_mm_yy',1));% Specify output filename
-header       = ['Participant, Event ID, Event start time,'...
+header       = ['Participant, Task type, Trial Type, Block number, Event start time,'...
                 'Time between Markers, Samples between markers,'...
                 'Trial length, Samples in trial,'...
                 'Total looking, Top Left, Top Right, Bottom Left, Bottom Right\n']; % Specify output header (This will need modifying!)
@@ -75,6 +75,10 @@ if ~isempty(eventsToFind)                                                  % Che
             end
             
             for eventStarts_n = 1:length(eventStarts)                      % For each trigger found
+                
+                event_labels = func_trial_labels(foundEvents{eventStarts(eventStarts_n),1}, eventStarts_n, eventMarkers.Trials{eventsToFind_n});% Add function to label each trial by task and admin
+                % (familiarisation vs test)
+                
                 ADDS_ET_data.(folders(folder_n).name).(eventsToFind.Event_name{eventsToFind_n})(eventStarts_n,1) =...
                     (foundEvents{eventStarts(eventStarts_n)+1,2} - foundEvents{eventStarts(eventStarts_n),2})/1000; % Calculate the time between the start and end triggers (ms)
                 
@@ -97,7 +101,7 @@ if ~isempty(eventsToFind)                                                  % Che
                 
                 fprintf(fid,'%s,%s,%s,%s\n',...                            % Write data to file
                     folders(folder_n).name,...                             % Participant ID
-                    eventsToFind.Event_name{eventsToFind_n},...            % Event ID
+                    event_labels,...                                       % Event labels
                     num2str(foundEvents{eventStarts(eventStarts_n),2}, '%20d'),... % Event start time
                     One_string(1:end-1)); 
             end
@@ -112,4 +116,4 @@ if ~isempty(eventsToFind)                                                  % Che
 end
 fclose(fid);                                                               % Close the data file
 cd(orig_path)                                                              % Change back to the original file path
-save('ADDS_ET_data', 'ADDS_ET_data');                                      % Save the ADDS_ET_data structure
+save(sprintf('ADDS_ET_data_%s',datestr(now,'dd_mm_yy',1)), 'ADDS_ET_data');% Save the ADDS_ET_data structure
