@@ -13,7 +13,7 @@ ADDS_ET_data = struct();                                                   % Pre
 % Add option box asking about analyses
 % Modify header based of analyses indicated
 
-output_FName = 'ADDS_ET_output.csv';                                       % Specify output filename
+output_FName = sprintf('ADDS_ET_output_%s.csv', datestr(now,'dd_mm_yy',1));% Specify output filename
 header       = ['Participant, Event ID, Event start time,'...
                 'Time between Markers, Samples between markers,'...
                 'Trial length, Samples in trial,'...
@@ -21,7 +21,7 @@ header       = ['Participant, Event ID, Event start time,'...
 fid          = fopen(output_FName, 'w');                                   % Create and open output data file
 fprintf(fid, header);                                                      % Write header to data file
                                                            
-path      = uigetdir('','Select main data folder');                        % Ask participant to select main data folder
+path    = uigetdir('','Select main data folder');                          % Ask participant to select main data folder
 cd(path)                                                                   % Change to main data folder
 files   = dir('ADDS*');                                                    % Get all the ADDS files available
 folders = files([files.isdir]);                                            % Select only the directories
@@ -81,20 +81,21 @@ if ~isempty(eventsToFind)                                                  % Che
                 ADDS_ET_data.(folders(folder_n).name).(eventsToFind.Event_name{eventsToFind_n})(eventStarts_n,2) =...
                     length(foundEvents{eventStarts(eventStarts_n),3}:foundEvents{eventStarts(eventStarts_n)+1,3}); % Calculate the number of samples in the epoch
                 
-                trial_end_ind = find(allData >= (foundEvents{eventStarts(eventStarts_n),2}+(eventsToFind.Event_length(eventsToFind_n)*1000)),1);
+                trial_end_ind =... % Find the index of the next recorded time point after the stimulus display ends
+                    find(allData >= (foundEvents{eventStarts(eventStarts_n),2}+(eventsToFind.Event_length(eventsToFind_n)*1000)),1);
                 
                 ADDS_ET_data.(folders(folder_n).name).(eventsToFind.Event_name{eventsToFind_n})(eventStarts_n,3) =...
-                    (allData(trial_end_ind,1)- foundEvents{eventStarts(eventStarts_n),2})/1000;
+                    (allData(trial_end_ind,1)- foundEvents{eventStarts(eventStarts_n),2})/1000; % Calculate the number of seconds stimulus was displayed for
                 
                 ADDS_ET_data.(folders(folder_n).name).(eventsToFind.Event_name{eventsToFind_n})(eventStarts_n,4) =...
-                    length(foundEvents{eventStarts(eventStarts_n),3}:trial_end_ind);
+                    length(foundEvents{eventStarts(eventStarts_n),3}:trial_end_ind); % Calculate the number of samples the stimulus was displayed for
                 
                 ADDS_ET_data.(folders(folder_n).name).(eventsToFind.Event_name{eventsToFind_n})(eventStarts_n,5:9) =...
                     func_quadrantsLT(allData(foundEvents{eventStarts(eventStarts_n),3}:trial_end_ind,:)); % Calculate the looking time per quadrant
                 
-                One_string = sprintf('%d,', ADDS_ET_data.(folders(folder_n).name).(eventsToFind.Event_name{eventsToFind_n})(eventStarts_n,:));
+                One_string = sprintf('%d,', ADDS_ET_data.(folders(folder_n).name).(eventsToFind.Event_name{eventsToFind_n})(eventStarts_n,:)); % Write all the calculated variables to a comma seperated string
                 
-                fprintf(fid,'%s,%s,%s,%s\n',...                       % Write data to file
+                fprintf(fid,'%s,%s,%s,%s\n',...                            % Write data to file
                     folders(folder_n).name,...                             % Participant ID
                     eventsToFind.Event_name{eventsToFind_n},...            % Event ID
                     num2str(foundEvents{eventStarts(eventStarts_n),2}, '%20d'),... % Event start time
