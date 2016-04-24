@@ -52,6 +52,7 @@ if ~isempty(eventsToFind)                                                  % Che
         allData   = [double(timeBuffer) mainBuffer];                       % Concatenates timeBuffer and mainBuffer
         allEvents = cell(size(eventBuffer));                               % Preallocate allEvents variable
         allEvents(:,1:2) = eventBuffer(:,1:2);                             % Write the first two columns of eventBuffer to allEvents
+        % allEvents(:,3) = cellfun(@(x) x{1}, eventBuffer(:,3),'UniformOutput', false);
         for event_n = 1:size(eventBuffer)
             allEvents(event_n,3) = eventBuffer{event_n, 3}(1,1);           % Add the trigger label from eventBuffer to the last column of allData
         end % event_n
