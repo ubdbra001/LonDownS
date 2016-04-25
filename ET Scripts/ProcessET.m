@@ -1,5 +1,5 @@
 % New Script to analyse MEM tasks for ET tasks on the LonDownS Alzheimer's Disease in Down syndrome Study.
-% V0.5 - 20/04/16
+% V0.6 - 25/04/16
 % Dan Brady
 
 orig_path = fileparts(mfilename('fullpath'));                              % Record folder the script was run from
@@ -14,10 +14,10 @@ ADDS_ET_data = struct();                                                   % Pre
 % Modify header based of analyses indicated
 
 output_FName = sprintf('ADDS_ET_output_%s.csv', datestr(now,'dd_mm_yy',1));% Specify output filename
-header       = ['Participant, Task type, Trial Type, Block number, Event start time,'...
-                'Time between Markers, Samples between markers,'...
-                'Trial length, Samples in trial,'...
-                'Total looking, Top Left, Top Right, Bottom Left, Bottom Right\n']; % Specify output header (This will need modifying!)
+header       = ['Participant,Task type,Trial Type,Block number,Trial number,Event start time,'...
+                'Time between Markers(ms),Samples between markers,'...
+                'Trial length(ms),Samples in trial,'...
+                'Total looking,Top Left,Top Right,Bottom Left,Bottom Right\n']; % Specify output header (This will need modifying!)
 fid          = fopen(output_FName, 'w');                                   % Create and open output data file
 fprintf(fid, header);                                                      % Write header to data file
                                                            
@@ -52,12 +52,9 @@ if ~isempty(eventsToFind)                                                  % Che
         allData   = [double(timeBuffer) mainBuffer];                       % Concatenates timeBuffer and mainBuffer
         allEvents = cell(size(eventBuffer));                               % Preallocate allEvents variable
         allEvents(:,1:2) = eventBuffer(:,1:2);                             % Write the first two columns of eventBuffer to allEvents
-        % allEvents(:,3) = cellfun(@(x) x{1}, eventBuffer(:,3),'UniformOutput', false);
-        for event_n = 1:size(eventBuffer)
-            allEvents(event_n,3) = eventBuffer{event_n, 3}(1,1);           % Add the trigger label from eventBuffer to the last column of allData
-        end % event_n
+        allEvents(:,3) = cellfun(@(x) x{1},eventBuffer(:,3),'UniformOutput', false); % Add the trigger label from eventBuffer to the last column of allData
         
-        clear *Buffer                                                      % Clear loaded variables
+        clear *Buffer                                                      % Clear loaded Buffer variables
         
         for eventsToFind_n = 1:size(eventsToFind,1)                        % For each of the specified markers
             len = length(eventsToFind.Event_name{eventsToFind_n});         % Get number of characters in that marker
@@ -77,7 +74,7 @@ if ~isempty(eventsToFind)                                                  % Che
             
             for eventStarts_n = 1:length(eventStarts)                      % For each trigger found
                 
-                event_labels = func_trial_labels(foundEvents{eventStarts(eventStarts_n),1}, eventStarts_n, eventMarkers.Trials{eventsToFind_n});% Add function to label each trial by task and admin
+                event_labels = func_trial_labels(foundEvents{eventStarts(eventStarts_n),1}, eventStarts_n, eventMarkers.Trials(eventsToFind_n));% Add function to label each trial by task and admin
                 % (familiarisation vs test)
                 
                 ADDS_ET_data.(folders(folder_n).name).(eventsToFind.Event_name{eventsToFind_n})(eventStarts_n,1) =...
@@ -100,7 +97,7 @@ if ~isempty(eventsToFind)                                                  % Che
                 
                 One_string = sprintf('%d,', ADDS_ET_data.(folders(folder_n).name).(eventsToFind.Event_name{eventsToFind_n})(eventStarts_n,:)); % Write all the calculated variables to a comma seperated string
                 
-                fprintf(fid,'%s,%s,%s,%s\n',...                            % Write data to file
+                fprintf(fid,'%s,%s%s,%s\n',...                             % Write data to file
                     folders(folder_n).name,...                             % Participant ID
                     event_labels,...                                       % Event labels
                     num2str(foundEvents{eventStarts(eventStarts_n),2}, '%20d'),... % Event start time
