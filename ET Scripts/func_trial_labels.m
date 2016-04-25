@@ -1,11 +1,10 @@
-%% Ideas for function to label trials by task and type
+%% Function to label trials by task and type
 
 function labels = func_trial_labels(event, event_n, expected_n_trials)
 
 trial_tasks = {'context', 'Context';...     % Define the different tasks
                'obj', 'Object change';...
-               'pos', 'Position change';...
-               'stimulus', 'VAP'};
+               'pos', 'Position change'};
            
 trial_type  = {'Familiarization';...        % Define the different trial types
                'Test'};
@@ -13,7 +12,7 @@ trial_type  = {'Familiarization';...        % Define the different trial types
 label{1} = type(event, trial_tasks);                 % Work out task type from event marker 
 label{2} = type(event, trial_type);                  % Work out trial type from event marker
 label{3} = floor((event_n-1)/expected_n_trials)+1;   % Calculate Block number from event_n
-label{4} = event_n-((label{3}-1)*expected_n_trials); % Calculate Trail number from event_n
+label{4} = event_n-((label{3}-1)*expected_n_trials); % Calculate Trial number from event_n
 
 label = cellfun(@num2str, label, 'UniformOutput', false); % Convert all to strings
 
@@ -40,24 +39,3 @@ end
 
 end
 
-%% Initial ideas for dividing and labelling VAP task trials
-
-function vap   
-
-movie_event = 'play_movie';
-stim_event = 'stimulus_start';
-
-movie_ind = [1; find(strncmpi(allEvents(:,3), movie_event, length(movie_event))); size(allEvents(:,3),1)];
-
-stim_ind = cell(length(diff(movie_ind)),1);
-
-for movie_ind_n = 1:length(diff(movie_ind))
-    
-    stim_ind{movie_ind_n} = find(strncmpi(allEvents(movie_ind(movie_ind_n):movie_ind(movie_ind_n+1),3), stim_event, length(stim_event)));
-    stim_ind{movie_ind_n} = stim_ind{movie_ind_n} + movie_ind(movie_ind_n)-1;
-    
-end
-
-
-    
-end
