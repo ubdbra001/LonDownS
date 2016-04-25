@@ -6,6 +6,9 @@ orig_path = fileparts(mfilename('fullpath'));                              % Rec
 addpath(orig_path)                                                         % Add that folder to path
 cd(orig_path)                                                              % Change to that folder for creation of output file
 
+folder_search_str = 'ADDS*';
+file_search_str   = '*Buffer_T1.mat';
+
 marker_fname_t   = 'event_markers.txt';                                    % Set filename for event markers
 analysis_fname_t = 'analysis_methods.txt';                                 % Set filename for analysis methods
 eventMarkers   = readtable(marker_fname_t);                                % Load markers in file
@@ -24,15 +27,15 @@ eventsToFind   = eventMarkers(eventInd_t,:);                               % Put
 % ADDS_ET_data   = struct();                                                 % Prep main output variable
 output_fname_t = sprintf('ADDS_ET_output_%s.csv',datestr(now,'dd_mm_yy',1)); % Specify output filename
 header_t       = ['Participant,Task type,Trial Type,Block number,Trial number,'...E
-                  'Event start time,Start marker, End marker, Time between Markers(ms), Samples between markers,'...
-                  'Trial length(ms),Samples in trial,'...
+                  'Event start time,Start marker, End marker, Time between Markers (ms), Samples between markers,'...
+                  'Trial length (ms),Samples in trial,'...
                   'Total looking,Top Left,Top Right,Bottom Left,Bottom Right\n']; % Specify output header (This will need modifying!)
 fid            = fopen(output_fname_t, 'w');                               % Create and open output data file
 fprintf(fid, header_t);                                                    % Write header to data file
                                                            
 path  = uigetdir('','Select main data folder');                            % Ask participant to select main data folder
 cd(path)                                                                   % Change to main data folder
-files_t   = dir('ADDS*');                                                  % Get all the ADDS files available
+files_t   = dir(folder_search_str);                                                  % Get all the ADDS files available
 folders = files_t([files_t.isdir]);                                        % Select only the directories
 
 varsToClear = {'*_t', '*_n'};
@@ -47,7 +50,7 @@ if ~isempty(eventsToFind)                                                  % Che
         %ADDS_ET_data.(p_name_t) = struct();                                % Create fieldname for the participant in output data variable
         cd(p_path_t)                                                       % Change to that path
         try
-            dataFilePaths_t = subdir('*Buffer_T1.mat');                    % Try to generate paths for the ET data for that participant
+            dataFilePaths_t = subdir(file_search_str);                     % Try to generate paths for the ET data for that participant
         catch                                                              % If there is an error
             %ADDS_ET_data.(folders(folder_n).name) = 'No Data';             % Make a note of the lack of data
             fprintf('\nNo data found for %s\n\n', folders(folder_n).name)  % No data found message
@@ -67,8 +70,11 @@ if ~isempty(eventsToFind)                                                  % Che
         clear *Buffer                                                      % Clear loaded Buffer variables
         
         for eventsToFind_n = 1:size(eventsToFind,1)                        % For each of the specified markers
+            VAP  = strcmpi(eventsToFind.Event_name{eventsToFind_n}, 'stimulus_start');
+            test = ~isempty(strfind(lower(eventsToFind.Event_name{eventsToFind_n}), 'test'));
             foundInd = find(strncmpi(eventsToFind.Event_name{eventsToFind_n},allEvents(:,3),...
                 length(eventsToFind.Event_name{eventsToFind_n})));         % Find the specified markers in the allEvents variable
+            if test; foundInd(2:2:end) = []; end;
             foundEvents = [allEvents(foundInd, 3:-1:2) cell(size(foundInd))... % Place matching events and times in variable, add blank third column
                        allEvents(foundInd+1, 3:-1:2) cell(size(foundInd))];    % Also place next events (end trial markers) and times into variable, add another blanck column
             foundEvents(:,7) = cellfun(@(x) x+(eventsToFind.Event_length(eventsToFind_n)*1000),...
@@ -77,19 +83,33 @@ if ~isempty(eventsToFind)                                                  % Che
                 foundEvents(:,foundEvent_col_n) = cellfun(@(x) find(allData(:,1) >= x,1),...
                     foundEvents(:,foundEvent_col_n-1), 'UniformOutput', false); % Find indicies for the foundEvent time points
             end % foundEvent_col_n
+            
+            if VAP
+                VAP_labels_t = func_VAP_labels(allEvents, foundInd);
+            end
            
+            
             for foundEvent_n = 1:size(foundEvents, 1)                      % For each event found
+                if VAP
+                    event_labels_t = sprintf('%s,', VAP_labels_t{foundEvent_n,:});
+                else
+                    event_labels_t = func_trial_labels(foundEvents{foundEvent_n,1},...
+                        foundEvent_n, eventsToFind.Trials(eventsToFind_n));    % Produce labels for each trial by task and type
+                end
                 
-                event_labels_t = func_trial_labels(foundEvents{foundEvent_n,1},...
-                    foundEvent_n, eventMarkers.Trials(eventsToFind_n));    % Produce labels for each trial by task and type
                 event_info_t = func_trig_info(foundEvents(foundEvent_n,:));% Produce info for triggers
                 
-                disp_t = length(foundEvents{foundEvent_n,2}:allData(foundEvents{foundEvent_n,8},1))/1000; % Calculate the number of ms stimulus was displayed for
-                
-                disp_s_t = length(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8}); % Calculate the number of samples the stimulus was displayed for
-                
-                quad_info_t = func_quadrantsLT(allData(foundEvents{foundEvent_n,3}:...
-                    foundEvents{foundEvent_n,8},:));                       % Calculate the looking time per quadrant
+                if ~isempty(foundEvents{foundEvent_n,8})
+                    disp_t = length(foundEvents{foundEvent_n,2}:allData(foundEvents{foundEvent_n,8},1))/1000; % Calculate the number of ms stimulus was displayed for
+                    
+                    disp_s_t = length(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8}); % Calculate the number of samples the stimulus was displayed for
+                    
+                    quad_info_t = func_quadrantsLT(allData(foundEvents{foundEvent_n,3}:...
+                        foundEvents{foundEvent_n,8},:));                       % Calculate the looking time per quadrant
+                else
+                    [disp_t, disp_s_t] = deal(NaN);
+                    quad_info_t = ones(1,5)*NaN;
+                end
                 
                 One_string_t = sprintf('%d,', [disp_t disp_s_t quad_info_t]); % Write all the calculated variables to a comma seperated string
                 
