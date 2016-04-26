@@ -1,5 +1,5 @@
 % New Script to analyse MEM tasks for ET tasks on the LonDownS Alzheimer's Disease in Down syndrome Study.
-% V0.6 - 25/04/16
+% V0.7 - 26/04/16
 % Dan Brady
 
 orig_path = fileparts(mfilename('fullpath'));                              % Record folder the script was run from
@@ -11,7 +11,7 @@ file_search_str   = '*Buffer_T1.mat';
 
 marker_fname_t   = 'event_markers.txt';                                    % Set filename for event markers
 analysis_fname_t = 'analysis_methods.txt';                                 % Set filename for analysis methods
-eventMarkers   = readtable(marker_fname_t);                                % Load markers in file
+eventMarkers     = readtable(marker_fname_t);                              % Load markers in file
 %analysisMeths  = importdata(analysis_fname_t);
 
 [eventInd_t,~] = listdlg('ListString', eventMarkers.Event_name,...
@@ -35,7 +35,7 @@ fprintf(fid, header_t);                                                    % Wri
                                                            
 path  = uigetdir('','Select main data folder');                            % Ask participant to select main data folder
 cd(path)                                                                   % Change to main data folder
-files_t   = dir(folder_search_str);                                                  % Get all the ADDS files available
+files_t = dir(folder_search_str);                                          % Get all the ADDS files available
 folders = files_t([files_t.isdir]);                                        % Select only the directories
 
 varsToClear = {'*_t', '*_n'};
@@ -70,11 +70,11 @@ if ~isempty(eventsToFind)                                                  % Che
         clear *Buffer                                                      % Clear loaded Buffer variables
         
         for eventsToFind_n = 1:size(eventsToFind,1)                        % For each of the specified markers
-            VAP  = strcmpi(eventsToFind.Event_name{eventsToFind_n}, 'stimulus_start');
-            test = ~isempty(strfind(lower(eventsToFind.Event_name{eventsToFind_n}), 'test'));
+            VAP_t = strcmpi(eventsToFind.Event_name{eventsToFind_n}, 'stimulus_start');
+            test_t = ~isempty(strfind(lower(eventsToFind.Event_name{eventsToFind_n}), 'test'));
             foundInd = find(strncmpi(eventsToFind.Event_name{eventsToFind_n},allEvents(:,3),...
                 length(eventsToFind.Event_name{eventsToFind_n})));         % Find the specified markers in the allEvents variable
-            if test; foundInd(2:2:end) = []; end;
+            if test_t; foundInd(2:2:end) = []; end;
             foundEvents = [allEvents(foundInd, 3:-1:2) cell(size(foundInd))... % Place matching events and times in variable, add blank third column
                        allEvents(foundInd+1, 3:-1:2) cell(size(foundInd))];    % Also place next events (end trial markers) and times into variable, add another blanck column
             foundEvents(:,7) = cellfun(@(x) x+(eventsToFind.Event_length(eventsToFind_n)*1000),...
@@ -84,13 +84,13 @@ if ~isempty(eventsToFind)                                                  % Che
                     foundEvents(:,foundEvent_col_n-1), 'UniformOutput', false); % Find indicies for the foundEvent time points
             end % foundEvent_col_n
             
-            if VAP
+            if VAP_t
                 VAP_labels_t = func_VAP_labels(allEvents, foundInd);
             end
            
             
             for foundEvent_n = 1:size(foundEvents, 1)                      % For each event found
-                if VAP
+                if VAP_t
                     event_labels_t = sprintf('%s,', VAP_labels_t{foundEvent_n,:});
                 else
                     event_labels_t = func_trial_labels(foundEvents{foundEvent_n,1},...
