@@ -77,7 +77,7 @@ for folder_n = 1:size(folders,1)                                           % Loo
     for eventsToFind_n = 1:size(eventsToFind,1)                            % For each of the specified markers
         VAP_t = strcmpi(eventsToFind.Marker_name{eventsToFind_n},'stimulus_start'); % Check to see if the task is VAP
         
-        test_t = ~isempty(strfind(lower(eventsToFind.Marker_name{eventsToFind_n}),'test')); % Check to see if trial type is test
+        test_t = ~isempty(strfind(lower(eventsToFind.Marker_name{eventsToFind_n}),'test')&strfind(lower(eventsToFind.Marker_name{eventsToFind_n}),'change')); % Check to see if trial type is test
         
         foundInd = find(strncmpi(eventsToFind.Marker_name{eventsToFind_n},allEvents(:,3),length(eventsToFind.Marker_name{eventsToFind_n}))); % Find the specified markers in the allEvents variable
         
