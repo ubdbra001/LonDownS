@@ -1,4 +1,4 @@
-Event_name,Marker_name,Event_length, Trials
+Name,Marker_name,Event_length, Trials
 Context - Familiarisation, CONTEXT_MEMORY_FAMILIARIZATION_START, 5000, 6
 Context - Test, CONTEXT_MEMORY_TEST_START, 5000, 1
 Position - Familiarisation, MEM_POS_CHANGE_FAMILIARIZATION_START, 9500, 3

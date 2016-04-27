@@ -1,2 +1,4 @@
-Total looking time
-Looking time per quadrant
+Name, analysis
+Total looking time, total time
+Looking time per quadrant, quadrant
+Time window, window
