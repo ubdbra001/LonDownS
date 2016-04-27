@@ -1,5 +1,5 @@
 % New Script to analyse MEM tasks for ET tasks on the LonDownS Alzheimer's Disease in Down syndrome Study.
-% V0.7 - 26/04/16
+% V0.8 - 27/04/16
 % Dan Brady
 
 orig_path = fileparts(mfilename('fullpath'));                              % Record folder the script was run from
@@ -9,24 +9,25 @@ cd(orig_path)                                                              % Cha
 folder_search_str = 'ADDS*';                                               % Set folder search string
 file_search_str   = '*Buffer_T1.mat';                                      % Set file search string
 marker_fname_t    = 'event_markers.txt';                                   % Set filename for event markers
-analysis_fname_t  = 'analysis_methods.txt';                                % Set filename for analysis methods
-eventMarkers_t    = readtable(marker_fname_t);                             % Load markers in file
-%analysisMeths_t   = importdata(analysis_fname_t);                          % Load analyses methods in file 
-eventDlgStr_t     = 'Please select which events you want to look for:';    % List dialogue string
+analys_fname_t    = 'analysis_methods.txt';                                % Set filename for analysis methods
+eventDlgStr_t     = 'Please select which events you want to look for:';    % Event list dialogue string
+anlysDlgStr_t     = 'Please select which analyses you want to use:';       % Analysis list dialogue string
+timeWinStr_t      = 'Please select the time window you''d like to use:';   % Time window input dialogue string
+defaultTimeWin_t  = {'250'};                                               % Default time window (ms)
+selectOp_t         = 'multiple';
+oldFontSize_t     = get(0, 'DefaultUicontrolFontSize');                    % Get default font size for UI elements
 varsToClear       = {'*_t', '*_n'};                                        % Variable to remove during tidying
 
-
-[eventInd_t,~] = listdlg('ListString', eventMarkers_t.Event_name,...       % Ask participant to select which event markers to find
-                         'SelectionMode', 'multiple',...
-                         'PromptString', eventDlgStr_t,...
-                         'ListSize', [400 300]);                           
-                     
-if isempty(eventsToFind); error('No events selected'); end                 % Throw error if no events selected
-eventsToFind   = eventMarkers_t(eventInd_t,:);                             % Put these markers into a variable
-
-% [analysisInd,~] = listdlg('ListString', analysisMeths,...
-%                        'SelectionMode', 'multiple');                       % Ask participant to select which analyses to use
-% analysesToUse   = analysisMeths(analysisInd,:);                            % Put these analyses into a variable
+set(0, 'DefaultUicontrolFontSize', 14);                                    % Set UI font size to 14 for better readability
+analysesToUse = func_read_options(analys_fname_t,anlysDlgStr_t,selectOp_t);% Allow user to select analyses to use
+if ismember(analysesToUse.analysis, 'window')                              % If the time window analysis was selected
+    time_window = inputdlg(timeWinStr_t,'Time window',1,defaultTimeWin_t); % Allow user to select time window to be used
+    if isempty(time_window); error('Nothing selected'); end                % If no time window entered throw error
+    time_window = str2double(time_window{:});                              % Convert string entered to a number
+    selectOp_t = 'single';                                                                        
+end
+eventsToFind = func_read_options(marker_fname_t,eventDlgStr_t,selectOp_t); % Allow user to select events to find
+set(0, 'DefaultUicontrolFontSize', oldFontSize_t);                         % Set UI fonts back to original size
 
 % Modify header based of analyses indicated
 
@@ -36,7 +37,7 @@ path  = uigetdir('','Select main data folder');                            % Ask
 if path == 0; error('Path not selected'); end                              % Throw error if no path selected
 
 output_fname_t = sprintf('ADDS_ET_output_%s.csv',datestr(now,'dd_mm_yy',1)); % Specify output filename
-header_t       = ['Participant,Task type,Trial Type,Block number,Trial number,'...E
+header_t       = ['Participant,Task type,Trial Type,Block number,Trial number,'...
                   'Event start time,Start marker, End marker, Time between Markers (ms), Samples between markers,'...
                   'Trial length (ms),Samples in trial,'...
                   'Total looking,Top Left,Top Right,Bottom Left,Bottom Right\n']; % Specify output header (This will need modifying!)
