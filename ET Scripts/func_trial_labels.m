@@ -16,7 +16,7 @@ label{4} = event_n-((label{3}-1)*expected_n_trials); % Calculate Trial number fr
 
 label = cellfun(@num2str, label, 'UniformOutput', false); % Convert all to strings
 
-labels = sprintf('%s,', label{:});                  % Concatenate label into single, comma seperated string
+labels = {strjoin(label,',')};                  % Concatenate label into single, comma seperated string
 
 end
 

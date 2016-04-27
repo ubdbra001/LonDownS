@@ -1,4 +1,4 @@
 Name, analysis
-Total looking time, total time
+Marker info, marker_info
 Looking time per quadrant, quadrant
 Time window, window

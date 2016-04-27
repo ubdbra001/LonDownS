@@ -13,4 +13,4 @@ TopR = sum(eyeXY(:,1)>0.5 & eyeXY(:,2)<0.5);                               % Cal
 BotL = sum(eyeXY(:,1)<0.5 & eyeXY(:,2)>0.5);                               % Calculate the number of samples where the participant was looking at the bottom left of the screen
 BotR = sum(eyeXY(:,1)>0.5 & eyeXY(:,2)>0.5);                               % Calculate the number of samples where the participant was looking at the bottom right of the screen
 
-data_out = [TotLook TopL TopR BotL BotR];                                  % Concatenate the measures into a single vector
+data_out = cellfun(@num2str,{TotLook TopL TopR BotL BotR},'Uni',0); % Concatenate the measures into a single vector
