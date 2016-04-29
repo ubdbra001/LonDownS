@@ -6,4 +6,4 @@ info{1} = eventsIn{1,4};
 info{2} = num2str(length(eventsIn{1,2}:eventsIn{1,5})/1000); % Calculate the time between the start and end triggers (ms)
 info{3} = num2str(length(eventsIn{1,3}:eventsIn{1,6}));      % Calculate the number of samples in the epoch
 
-trigs_out = {strjoin(info)};
+trigs_out = {strjoin(info,',')};

@@ -49,7 +49,7 @@ files_t = dir(folder_search_str);                                          % Get
 folders = files_t([files_t.isdir]);                                        % Select only the directories
 clearvars(varsToClear{:})                                                  % Tidy workspace
 
-for folder_n = 1:size(folders,1)                                           % Loop through each participant
+for folder_n = 1:10% size(folders,1)                                           % Loop through each participant
     commandwindow
     fprintf('\nStarting %s\n\n', folders(folder_n).name)                   % Starting message
     p_path_t = sprintf('%s/%s', path, folders(folder_n).name);             % Create path for participants folder
@@ -88,10 +88,10 @@ for folder_n = 1:size(folders,1)                                           % Loo
         
         foundEvents(:,7) = cellfun(@(x) x+(eventsToFind.Event_length(eventsToFind_n)*1000),foundEvents(:,2), 'Uni', false); % Calculate actual time of stimulus display
         
-        for foundEvent_col_n = [3 6 8]
-            foundEvents(:,foundEvent_col_n) = cellfun(@(x) find(allData(:,1) >= x,1),foundEvents(:,foundEvent_col_n-1), 'Uni', false); % Find indicies for the foundEvent time points
-        end % foundEvent_col_n
-        
+        foundEvents(:,3) = cellfun(@(x) find(allData(:,1) >= x,1),foundEvents(:,2), 'Uni', false); % Find indicies for the foundEvent time points
+        foundEvents(:,6) = cellfun(@(x) find(allData(:,1) > 0 & allData(:,1) < x,1,'last'),foundEvents(:,5), 'Uni', false); % Find indicies for the foundEvent time points
+        foundEvents(:,8) = cellfun(@(x) find(allData(:,1) > 0 & allData(:,1) < x,1,'last'),foundEvents(:,7), 'Uni', false); % Find indicies for the foundEvent time points
+
         if VAP_t; VAP_labels_t = func_VAP_labels(allEvents, foundInd); end % If task is VAP then generate trial labels
         
         for foundEvent_n = 1:size(foundEvents, 1)                          % For each event found
@@ -107,7 +107,7 @@ for folder_n = 1:size(folders,1)                                           % Loo
             
             if validLastEv_t
                 dispTime_t      = length(foundEvents{foundEvent_n,2}:allData(foundEvents{foundEvent_n,8},1))/1000;      % Calculate the number of ms stimulus was displayed for
-                dispSamples_t    = length(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8});                      % Calculate the number of samples the stimulus was displayed for
+                dispSamples_t   = length(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8});                      % Calculate the number of samples the stimulus was displayed for
             else
                 [dispTime_t, dispSamples_t] = deal(NaN);
             end
