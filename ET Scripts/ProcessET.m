@@ -23,8 +23,8 @@ set(0, 'DefaultUicontrolFontSize', 14);                                    % Set
 analysesToUse = func_read_options(analys_fname_t,anlysDlgStr_t,selectOp_t);% Allow user to select analyses to use
 if find(ismember(analysesToUse.analysis, 'window'))                        % If the time window analysis was selected
     timeWindowWidth = inputdlg(timeWinStr_t,'Time window',1,defaultTimeWin_t);  % Allow user to select time window to be used
-    if isempty(timeWindowWidth); error('Nothing selected'); end                 % If no time window entered throw error
-    timeWindowWidth = str2double(timeWindowWidth{:});                                % Convert string entered to a number
+    if isempty(timeWindowWidth); error('Nothing selected'); end            % If no time window entered throw error
+    timeWindowWidth = str2double(timeWindowWidth{:});                      % Convert string entered to a number
     selectOp_t = 'single';                                                 % Restrict event selection if time window analysis selected                       
 end
 eventsToFind = func_read_options(marker_fname_t,eventDlgStr_t,selectOp_t); % Allow user to select events to find
@@ -33,7 +33,7 @@ if ~isempty(timeWindowWidth)
     timeWindows = 0:timeWindowWidth:eventsToFind.Event_length;
 end
 
-header_t = func_specify_header(analysesToUse, timeWindows);                   % Modify header based on analyses indicated
+header_t = func_specify_header(analysesToUse, timeWindows);                % Modify header based on analyses indicated
 
 % ADDS_ET_data   = struct();                                                 % Prep main output variable
 
@@ -49,7 +49,7 @@ files_t = dir(folder_search_str);                                          % Get
 folders = files_t([files_t.isdir]);                                        % Select only the directories
 clearvars(varsToClear{:})                                                  % Tidy workspace
 
-for folder_n = 1:10% size(folders,1)                                           % Loop through each participant
+for folder_n = 1:size(folders,1)                                           % Loop through each participant
     commandwindow
     fprintf('\nStarting %s\n\n', folders(folder_n).name)                   % Starting message
     p_path_t = sprintf('%s/%s', path, folders(folder_n).name);             % Create path for participants folder
@@ -96,7 +96,7 @@ for folder_n = 1:10% size(folders,1)                                           %
         
         for foundEvent_n = 1:size(foundEvents, 1)                          % For each event found
             if VAP_t                                                       % If the task is VAP then used the pre-generated labels
-                eventLabels_t = sprintf('%s,', VAP_labels_t{foundEvent_n,:});
+                eventLabels_t = {strjoin(VAP_labels_t(foundEvent_n,:),',')};
             else                                                           % Otherwise produce labels for each trial by task and type
                 eventLabels_t = func_trial_labels(foundEvents{foundEvent_n,1},foundEvent_n, eventsToFind.Trials(eventsToFind_n));
             end
@@ -120,9 +120,9 @@ for folder_n = 1:10% size(folders,1)                                           %
                             event_info_t = func_trig_info(foundEvents(foundEvent_n,:));    % Produce info about triggers
                             dataToWrite_t = strjoin([dataToWrite_t, event_info_t],',');
                         case 'quadrant'
-                            if validLastEv_t                     % If the end trigger is not empty
+                            if validLastEv_t                               % If the end trigger is not empty
                                 quad_info_t = func_quadrantsLT(allData(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8},:)); % Calculate the looking time per quadrant
-                            else                                                           % If the end trigger is empty then label everything NaN
+                            else                                           % If the end trigger is empty then label everything NaN
                                 quad_info_t = repmat({'NaN'},1,5);
                             end
                             dataToWrite_t = strjoin([dataToWrite_t, quad_info_t],',');
@@ -132,7 +132,7 @@ for folder_n = 1:10% size(folders,1)                                           %
                                 start_ind = find(allData(:,1) >= eventTimeWindows(window_n),1,'first');
                                 end_ind   = find(allData(:,1) > 0 & allData(:,1) < eventTimeWindows(window_n+1),1,'last');
                                 if validLastEv_t                                                  % If the end marker is not empty
-                                    dispSamples_t = num2str(length(start_ind:end_ind));                 % Calculate the number of samples in the window
+                                    dispSamples_t = num2str(length(start_ind:end_ind));           % Calculate the number of samples in the window
                                     quad_info_t   = func_quadrantsLT(allData(start_ind:end_ind,:)); % Calculate the looking time per quadrant
                                 else                                                              % If the end trigger is empty then label everything NaN
                                     dispSamples_t = 'NaN';
@@ -141,17 +141,8 @@ for folder_n = 1:10% size(folders,1)                                           %
                                 dataToWrite_t = strjoin([dataToWrite_t, dispSamples_t, quad_info_t],',');
                             end
                     end
-            end
-            
-            dataToWrite_t = [dataToWrite_t '\n'];
-
-%            One_string_t = sprintf('%d,', [dispTime_t dispSamples_t quad_info_t]);  % Write all the calculated variables to a comma seperated string
-            
-            fprintf(fid,dataToWrite_t);                                  % Write data to file
-%                 folders(folder_n).name,...                                 % Participant ID
-%                 eventLabels_t,...                                         % Event labels
-%                 event_info_t,...                                           % Event trigger info
-%                 One_string_t(1:end-1));                                    % All other info
+            end            
+            fprintf(fid,[dataToWrite_t '\n']);                             % Write data to file
         end % foundEvent_n
     end % eventsToFind_n
     fprintf('\nFinished %s\n\n', folders(folder_n).name)                   % Finished message

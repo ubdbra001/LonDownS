@@ -23,4 +23,4 @@ for block_n = 1:size(block,1)
     labels_out(ind,4)     = num2cell(1:2);
 end
 labels_out(cellfun('isempty', labels_out)) = {'Unknown'};
-labels_out = strjoin(cellfun(@num2str, labels_out, 'uni', false),',');
+labels_out = cellfun(@num2str, labels_out, 'uni', false);
