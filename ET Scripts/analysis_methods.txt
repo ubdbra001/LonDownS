@@ -2,3 +2,4 @@ Name, analysis
 Marker info, marker_info
 Looking time per quadrant, quadrant
 Time window, window
+Export data, export

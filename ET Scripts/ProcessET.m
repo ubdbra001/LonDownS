@@ -1,5 +1,5 @@
 % New Script to analyse MEM tasks for ET tasks on the LonDownS Alzheimer's Disease in Down syndrome Study.
-% V0.9 - 27/04/16
+% V1.00 - 09/05/16
 % Dan Brady
 
 orig_path = fileparts(mfilename('fullpath'));                              % Record folder the script was run from
@@ -8,6 +8,7 @@ cd(orig_path)                                                              % Cha
 
 folder_search_str = 'ADDS*';                                               % Set folder search string
 file_search_str   = '*Buffer_T1.mat';                                      % Set file search string
+outputDir         = '/Volumes/ADDS/Dan/Exported ET';                       % Set parent data export Directory
 marker_fname_t    = 'event_markers.txt';                                   % Set filename for event markers
 analys_fname_t    = 'analysis_methods.txt';                                % Set filename for analysis methods
 eventDlgStr_t     = 'Please select which events you want to look for:';    % Event list dialogue string
@@ -21,7 +22,7 @@ varsToClear       = {'*_t', '*_n'};                                        % Var
 
 set(0, 'DefaultUicontrolFontSize', 14);                                    % Set UI font size to 14 for better readability
 analysesToUse = func_read_options(analys_fname_t,anlysDlgStr_t,selectOp_t);% Allow user to select analyses to use
-if find(ismember(analysesToUse.analysis, 'window'))                        % If the time window analysis was selected
+if any(ismember(analysesToUse.analysis, 'window'))                         % If the time window analysis was selected
     timeWindowWidth = inputdlg(timeWinStr_t,'Time window',1,defaultTimeWin_t);  % Allow user to select time window to be used
     if isempty(timeWindowWidth); error('Nothing selected'); end            % If no time window entered throw error
     timeWindowWidth = str2double(timeWindowWidth{:});                      % Convert string entered to a number
@@ -53,7 +54,7 @@ for folder_n = 1:size(folders,1)                                           % Loo
     commandwindow
     fprintf('\nStarting %s\n\n', folders(folder_n).name)                   % Starting message
     p_path_t = sprintf('%s/%s', path, folders(folder_n).name);             % Create path for participants folder
-    %p_name_t = folders(folder_n).name;                                     % Create variable to store participant ID
+    p_name_t = folders(folder_n).name;                                     % Create variable to store participant ID
     %ADDS_ET_data.(p_name_t) = struct();                                    % Create fieldname for the participant in output data variable
     cd(p_path_t)                                                           % Change to that path
     try
@@ -88,11 +89,17 @@ for folder_n = 1:size(folders,1)                                           % Loo
         
         foundEvents(:,7) = cellfun(@(x) x+(eventsToFind.Event_length(eventsToFind_n)*1000),foundEvents(:,2), 'Uni', false); % Calculate actual time of stimulus display
         
-        foundEvents(:,3) = cellfun(@(x) find(allData(:,1) >= x,1),foundEvents(:,2), 'Uni', false); % Find indicies for the foundEvent time points
-        foundEvents(:,6) = cellfun(@(x) find(allData(:,1) > 0 & allData(:,1) < x,1,'last'),foundEvents(:,5), 'Uni', false); % Find indicies for the foundEvent time points
-        foundEvents(:,8) = cellfun(@(x) find(allData(:,1) > 0 & allData(:,1) < x,1,'last'),foundEvents(:,7), 'Uni', false); % Find indicies for the foundEvent time points
+        foundEvents(:,3) = cellfun(@(x) find(allData(:,1) >= x,1),foundEvents(:,2), 'Uni', false); % Find indicies for the stimulus & marker onset time points
+        foundEvents(:,6) = cellfun(@(x) find(allData(:,1) > 0 & allData(:,1) < x,1,'last'),foundEvents(:,5), 'Uni', false); % Find indicies for the marker offset time points
+        foundEvents(:,8) = cellfun(@(x) find(allData(:,1) > 0 & allData(:,1) < x,1,'last'),foundEvents(:,7), 'Uni', false); % Find indicies for the stimulus offset time points
 
         if VAP_t; VAP_labels_t = func_VAP_labels(allEvents, foundInd); end % If task is VAP then generate trial labels
+        
+        if any(ismember(analysesToUse.analysis, 'export'))                          % If export data option selected
+            s.(p_name_t) = [];                                             % Create struct to contain data 
+            eventOutputDir_t = sprintf('%s/%s',outputDir, eventsToFind.Name{eventsToFind_n}); % Generate directory path for saving data
+            if ~exist(eventOutputDir_t, 'dir'); mkdir(eventOutputDir_t); end   % If directory doesn't already exist then create it
+        end
         
         for foundEvent_n = 1:size(foundEvents, 1)                          % For each event found
             if VAP_t                                                       % If the task is VAP then used the pre-generated labels
@@ -101,36 +108,36 @@ for folder_n = 1:size(folders,1)                                           % Loo
                 eventLabels_t = func_trial_labels(foundEvents{foundEvent_n,1},foundEvent_n, eventsToFind.Trials(eventsToFind_n));
             end
             
-            evtStartMrk_t  = foundEvents{foundEvent_n,1};
-            evtStartTime_t = num2str(foundEvents{foundEvent_n,2}, '%20d');
-            validLastEv_t  = ~isempty(foundEvents{foundEvent_n,8});
+            evtStartMrk_t  = foundEvents{foundEvent_n,1};                  % Record the Event onset marker name
+            evtStartTime_t = num2str(foundEvents{foundEvent_n,2}, '%20d'); % Record the Event onset marker time
+            validLastEv_t  = ~isempty(foundEvents{foundEvent_n,8});        % Make sure there is a offset marker
             
-            if validLastEv_t
+            if validLastEv_t                                               % If there is a valid offset marker
                 dispTime_t      = length(foundEvents{foundEvent_n,2}:allData(foundEvents{foundEvent_n,8},1))/1000;      % Calculate the number of ms stimulus was displayed for
                 dispSamples_t   = length(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8});                      % Calculate the number of samples the stimulus was displayed for
-            else
+            else                                                           % If not mark the display time and samples NaN
                 [dispTime_t, dispSamples_t] = deal(NaN);
             end
 
-            dataToWrite_t = strjoin(cellfun(@num2str, [folders(folder_n).name, eventLabels_t, evtStartMrk_t, evtStartTime_t, dispTime_t, dispSamples_t], 'Uni', 0),',');
+            dataToWrite_t = strjoin(cellfun(@num2str, [folders(folder_n).name, eventLabels_t, evtStartMrk_t, evtStartTime_t, dispTime_t, dispSamples_t], 'Uni', 0),','); % Write the above info to a string for later export to csv
             
-            for analysis_n = 1:size(analysesToUse,1)
-                    switch analysesToUse.analysis{analysis_n}
-                        case 'marker_info'
-                            event_info_t = func_trig_info(foundEvents(foundEvent_n,:));    % Produce info about triggers
-                            dataToWrite_t = strjoin([dataToWrite_t, event_info_t],',');
-                        case 'quadrant'
+            for analysis_n = 1:size(analysesToUse,1)                       % Loop through the number of analyses selected
+                    switch analysesToUse.analysis{analysis_n}              % Check each analysis
+                        case 'marker_info'                                 % If marker_info is selected then
+                            event_info_t = func_trig_info(foundEvents(foundEvent_n,:)); % Produce extended info about triggers (i.e. time & sampes between triggers and offset trigger name)
+                            dataToWrite_t = strjoin([dataToWrite_t, event_info_t],','); % Add this to the string for csv export
+                        case 'quadrant'                                    % If quadrant analysis is selected
                             if validLastEv_t                               % If the end trigger is not empty
                                 quad_info_t = func_quadrantsLT(allData(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8},:)); % Calculate the looking time per quadrant
                             else                                           % If the end trigger is empty then label everything NaN
                                 quad_info_t = repmat({'NaN'},1,5);
                             end
-                            dataToWrite_t = strjoin([dataToWrite_t, quad_info_t],',');
-                        case 'window'
-                            eventTimeWindows = timeWindows.*1000 + double(foundEvents{foundEvent_n,2});
-                            for window_n = 1:length(eventTimeWindows)-1
-                                start_ind = find(allData(:,1) >= eventTimeWindows(window_n),1,'first');
-                                end_ind   = find(allData(:,1) > 0 & allData(:,1) < eventTimeWindows(window_n+1),1,'last');
+                            dataToWrite_t = strjoin([dataToWrite_t, quad_info_t],','); % Add this to the string for csv export
+                        case 'window'                                      % If time window analysis is selected
+                            eventTimeWindows = timeWindows.*1000 + double(foundEvents{foundEvent_n,2}); % Generate specific window times for that event
+                            for window_n = 1:length(eventTimeWindows)-1    % For each window
+                                start_ind = find(allData(:,1) >= eventTimeWindows(window_n),1,'first'); % Find the start time index
+                                end_ind   = find(allData(:,1) > 0 & allData(:,1) < eventTimeWindows(window_n+1),1,'last'); % Find the end time index
                                 if validLastEv_t                                                  % If the end marker is not empty
                                     dispSamples_t = num2str(length(start_ind:end_ind));           % Calculate the number of samples in the window
                                     quad_info_t   = func_quadrantsLT(allData(start_ind:end_ind,:)); % Calculate the looking time per quadrant
@@ -138,12 +145,23 @@ for folder_n = 1:size(folders,1)                                           % Loo
                                     dispSamples_t = 'NaN';
                                     quad_info_t = repmat({'NaN'},1,6);
                                 end
-                                dataToWrite_t = strjoin([dataToWrite_t, dispSamples_t, quad_info_t],',');
+                                dataToWrite_t = strjoin([dataToWrite_t, dispSamples_t, quad_info_t],','); % Add this data to the sting for csv export
+                            end
+                        case 'export'
+                            if VAP_t
+                                s.(p_name_t){foundEvent_n}.label = VAP_labels_t{foundEvent_n,2}; 
+                                s.(p_name_t){foundEvent_n}.data  = func_preprocessData(allData(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8},:));
+                            else
+                                s.(p_name_t){foundEvent_n} = func_preprocessData(allData(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8},:));
                             end
                     end
             end            
-            fprintf(fid,[dataToWrite_t '\n']);                             % Write data to file
+            fprintf(fid,[dataToWrite_t '\n']);                             % Write data to csv file
         end % foundEvent_n
+        if any(ismember(analysesToUse.analysis, 'export'))
+            ouputFile_t = sprintf('%s/%s', eventOutputDir_t, p_name_t);
+            save(ouputFile_t, '-struct', 's', p_name_t);
+        end
     end % eventsToFind_n
     fprintf('\nFinished %s\n\n', folders(folder_n).name)                   % Finished message
     clearvars(varsToClear{:}, '-except', 'folder_n')                       % Tidy workspace

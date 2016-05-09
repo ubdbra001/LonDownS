@@ -21,4 +21,4 @@ for analysis_n = 1:size(analyses,1)
     end
 end
 
-headerOut = [headerOut '\n'];
+headerOut = strjoin([headerOut '\n']);

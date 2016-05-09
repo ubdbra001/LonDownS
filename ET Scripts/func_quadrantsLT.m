@@ -1,10 +1,8 @@
 function data_out = func_quadrantsLT(data_in)
 
-LXRX_LYRY = data_in(:,[9, 22, 10, 23]);                                    % Extract data for individual eyes from epoch
+LXRX_LYRY = func_preprocessData(data_in);
 
-LXRX_LYRY(LXRX_LYRY<-0.05|LXRX_LYRY>1.05) = NaN;                           % Remove samples where participant was not looking at the screen
-
-eyeXY = [nanmean(LXRX_LYRY(:,1:2),2)'; nanmean(LXRX_LYRY(:,3:4),2)']';     % Calculate single coordinate for looking 
+eyeXY = [nanmean(LXRX_LYRY(:,2:3),2)'; nanmean(LXRX_LYRY(:,4:5),2)']';     % Calculate single coordinate for looking 
 
 TotLook = sum(~isnan(eyeXY(:,1)) & ~isnan(eyeXY(:,2)));                    % Calculate the number of samples where the participant was looking at the screen
 
