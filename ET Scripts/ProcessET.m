@@ -30,7 +30,7 @@ if any(ismember(analysesToUse.analysis, 'window'))                         % If 
 end
 eventsToFind = func_read_options(marker_fname_t,eventDlgStr_t,selectOp_t); % Allow user to select events to find
 set(0, 'DefaultUicontrolFontSize', oldFontSize_t);                         % Set UI fonts back to original size
-if ~isempty(timeWindowWidth)
+if ~isempty(timeWindowWidth)                                               % Generate time windows if option is selected
     timeWindows = 0:timeWindowWidth:eventsToFind.Event_length;
 end
 
@@ -95,10 +95,10 @@ for folder_n = 1:size(folders,1)                                           % Loo
 
         if VAP_t; VAP_labels_t = func_VAP_labels(allEvents, foundInd); end % If task is VAP then generate trial labels
         
-        if any(ismember(analysesToUse.analysis, 'export'))                          % If export data option selected
+        if any(ismember(analysesToUse.analysis, 'export'))                 % If export data option selected
             s.(p_name_t) = [];                                             % Create struct to contain data 
             eventOutputDir_t = sprintf('%s/%s',outputDir, eventsToFind.Name{eventsToFind_n}); % Generate directory path for saving data
-            if ~exist(eventOutputDir_t, 'dir'); mkdir(eventOutputDir_t); end   % If directory doesn't already exist then create it
+            if ~exist(eventOutputDir_t, 'dir'); mkdir(eventOutputDir_t); end % If directory doesn't already exist then create it
         end
         
         for foundEvent_n = 1:size(foundEvents, 1)                          % For each event found
@@ -147,20 +147,20 @@ for folder_n = 1:size(folders,1)                                           % Loo
                                 end
                                 dataToWrite_t = strjoin([dataToWrite_t, dispSamples_t, quad_info_t],','); % Add this data to the sting for csv export
                             end
-                        case 'export'
-                            if VAP_t
-                                s.(p_name_t){foundEvent_n}.label = VAP_labels_t{foundEvent_n,2}; 
-                                s.(p_name_t){foundEvent_n}.data  = func_preprocessData(allData(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8},:));
-                            else
-                                s.(p_name_t){foundEvent_n} = func_preprocessData(allData(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8},:));
+                        case 'export'                                      % If the export option is selected
+                            if VAP_t                                       % If the task is the VAP
+                                s.(p_name_t){foundEvent_n}.label = VAP_labels_t{foundEvent_n,2}; % Then label each trial in the data stucture
+                                s.(p_name_t){foundEvent_n}.data  = func_preprocessData(allData(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8},:)); % Place data from event in data structure
+                            else                                           % For all of the other tasks
+                                s.(p_name_t){foundEvent_n} = func_preprocessData(allData(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8},:)); % Just place the data from event into data structure
                             end
                     end
             end            
             fprintf(fid,[dataToWrite_t '\n']);                             % Write data to csv file
         end % foundEvent_n
-        if any(ismember(analysesToUse.analysis, 'export'))
-            ouputFile_t = sprintf('%s/%s', eventOutputDir_t, p_name_t);
-            save(ouputFile_t, '-struct', 's', p_name_t);
+        if any(ismember(analysesToUse.analysis, 'export'))                 % If export option selected
+            ouputFile_t = sprintf('%s/%s', eventOutputDir_t, p_name_t);    % Generate output path (including filename)
+            save(ouputFile_t, '-struct', 's', p_name_t);                   % Save the individual participant data from the data structure
         end
     end % eventsToFind_n
     fprintf('\nFinished %s\n\n', folders(folder_n).name)                   % Finished message
