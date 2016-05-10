@@ -3,10 +3,15 @@
 % Dan Brady 
 
 %% Will proabbly need to define some things here
-% Dir for data in
+orig_path       = fileparts(mfilename('fullpath'));                       % Record folder the script was run from
+dataParDir      = '/Volumes/ADDS/Dan/Exported ET';                  % Dir for data in
 % Dir for data out
-% Fixation Parameters
+taskSelectstr   = 'Which task would you like to process?';          % String for task selection box
+dataSelectstr   = 'Which participants would you like to process?';  % Sring for participant selection box
+oldFontSize_t   = get(0, 'DefaultUicontrolFontSize');               % Get default font size for UI elements
 
+
+%% Fixation Parameters
 SamplingFrequency       = 60;                 % Sampling frequency in Hz
 VelocityThreshold       = 35;                 % In deg/sec
 MinFix                  = 0.1;                % Minimum fixation time in Secs
@@ -17,26 +22,57 @@ MovWinThreshold         = VelocityThreshold/3;% If the (up to) five samples imme
 AvgVelTreshold          = VelocityThreshold/3;% If the average velocity over the previous fixation was above a threshold...
 MaxToInterpolate        = 0.15;               % In secs
 SmoothPursuitThreshold  = 0.04;               % If euclid dis between start and end of fix is > 4% of screen - ie 1 deg of vis angle
+
+% This may need to be done later if we do individualised distances from screen
 ScreenResolution        = [1360 768];         % Screen resolution of the data you are processing
 ScreenSize              = [50.5 28.5];        % Screen size of the data you are processing in cm
 DistFromScreen          = 60;                 % Distance from the screen in cm   
 DegPerPix               = mean(radtodeg(2*atan(ScreenSize./(2*DistFromScreen)))./ScreenResolution); % Mean degrees per pixel ~ 0.034 @1360x768 at 60cm
 
+%% Select task and participants to analyse
+addpath(orig_path)
+cd(dataParDir);
+folders = dir();
+folders = folders(~strncmpi('.', {folders.name}, 1));
 
+set(0, 'DefaultUicontrolFontSize', 14);                                    % Set UI font size to 14 for better readability
+[t_ind, ~] = listdlg('ListString', {folders.name}, 'SelectionMode', 'single', 'PromptString', taskSelectstr, 'ListSize', [400 300]);
+dataAnalysisDir = sprintf('%s/%s', dataParDir, folders(t_ind).name);
 
-%% Select participants to use
+cd(dataAnalysisDir);
 
-% Start loop for each participant
-% Load .mat data
+files = dir('*.mat');
+[p_ind, ~] = listdlg('ListString', {files.name}, 'SelectionMode', 'multiple', 'PromptString', dataSelectstr, 'ListSize', [400 300]);
 
-% Start loop for each trial
-% Resample data so it's at 60Hz
+selectedParticipants = {files(p_ind).name};
 
-% Run smoothing function on it
-% Save original data as 'rough' and smoothed data as 'smooth' (in a
-% structure?)
+set(0, 'DefaultUicontrolFontSize', oldFontSize_t);                         % Set UI font size back to default
 
-% Run subFixationFilter (or rewritten version of it) on data
+%% Start analysis loop
+
+[dataIn, dataOut]  = deal(struct());
+
+for participant_n = 1:numel(selectedParticipants) % Loop through each selected participant
+
+    pName   = selectedParticipants{participant_n}(1:end-4); % Generate variable name 
+    dataIn  = load(selectedParticipants{participant_n});    % Load .mat data
+    clear dataIn
+    
+    trials  = numel(dataIn.(pName)); % Get the number of trials
+    
+    for trial_n = 1:trials % Start loop for each trial
+
+        dataOut.(pName).rough = func_dataResample(dataIn.(pName), SamplingFrequency); % Resample data so it's at 60Hz
+
+        % Run smoothing function on it
+        % Save original data as 'rough' and smoothed data as 'smooth' (in a
+        % structure?)
+        
+        % Run subFixationFilter (or rewritten version of it) on data
+        
+    end
+
+end
 
 % Display results? (Need to check what the script is doing after subFixationFilter)
 
