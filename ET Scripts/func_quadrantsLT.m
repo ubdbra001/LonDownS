@@ -2,7 +2,7 @@ function data_out = func_quadrantsLT(data_in)
 
 LXRX_LYRY = func_preprocessData(data_in);
 
-eyeXY = [nanmean(LXRX_LYRY(:,2:3),2)'; nanmean(LXRX_LYRY(:,4:5),2)']';     % Calculate single coordinate for looking 
+eyeXY = [nanmean(LXRX_LYRY(:,3:4),2)'; nanmean(LXRX_LYRY(:,5:6),2)']';     % Calculate single coordinate for looking 
 
 TotLook = sum(~isnan(eyeXY(:,1)) & ~isnan(eyeXY(:,2)));                    % Calculate the number of samples where the participant was looking at the screen
 

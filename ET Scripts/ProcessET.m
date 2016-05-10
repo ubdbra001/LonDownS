@@ -1,5 +1,5 @@
 % New Script to analyse MEM tasks for ET tasks on the LonDownS Alzheimer's Disease in Down syndrome Study.
-% V1.00 - 09/05/16
+% V1.00 - 10/05/16
 % Dan Brady
 
 orig_path = fileparts(mfilename('fullpath'));                              % Record folder the script was run from
@@ -22,11 +22,11 @@ varsToClear       = {'*_t', '*_n'};                                        % Var
 
 set(0, 'DefaultUicontrolFontSize', 14);                                    % Set UI font size to 14 for better readability
 analysesToUse = func_read_options(analys_fname_t,anlysDlgStr_t,selectOp_t);% Allow user to select analyses to use
-if any(ismember(analysesToUse.analysis, 'window'))                         % If the time window analysis was selected
+if any(ismember(analysesToUse.analysis, 'window'))                     % If the time window analysis was selected
     timeWindowWidth = inputdlg(timeWinStr_t,'Time window',1,defaultTimeWin_t);  % Allow user to select time window to be used
     if isempty(timeWindowWidth); error('Nothing selected'); end            % If no time window entered throw error
     timeWindowWidth = str2double(timeWindowWidth{:});                      % Convert string entered to a number
-    selectOp_t = 'single';                                                 % Restrict event selection if time window analysis selected                       
+    selectOp_t = 'single';                                                 % Restrict event selection if time window analysis selected    
 end
 eventsToFind = func_read_options(marker_fname_t,eventDlgStr_t,selectOp_t); % Allow user to select events to find
 set(0, 'DefaultUicontrolFontSize', oldFontSize_t);                         % Set UI fonts back to original size
@@ -34,16 +34,15 @@ if ~isempty(timeWindowWidth)                                               % Gen
     timeWindows = 0:timeWindowWidth:eventsToFind.Event_length;
 end
 
-header_t = func_specify_header(analysesToUse, timeWindows);                % Modify header based on analyses indicated
-
-% ADDS_ET_data   = struct();                                                 % Prep main output variable
-
 path  = uigetdir('','Select main data folder');                            % Ask participant to select main data folder
 if path == 0; error('Path not selected'); end                              % Throw error if no path selected
 
-output_fname_t = sprintf('ADDS_ET_output_%s.csv',datestr(now,'dd_mm_yy',1)); % Specify output filename
-fid            = fopen(output_fname_t, 'w');                               % Create and open output data file
-fprintf(fid, header_t);                                                    % Write header to data file
+if ~all(strcmp(analysesToUse.analysis, 'export'))                          % If only export is specified then don't produce summaries
+    header_t = func_specify_header(analysesToUse, timeWindows);            % Modify header based on analyses indicated
+    output_fname_t = sprintf('ADDS_ET_output_%s.csv',datestr(now,'dd_mm_yy',1)); % Specify output filename
+    fid            = fopen(output_fname_t, 'w');                           % Create and open output data file
+    fprintf(fid, header_t);                                                % Write header to data file
+end
                                                            
 cd(path)                                                                   % Change to main data folder
 files_t = dir(folder_search_str);                                          % Get all the ADDS files available
@@ -55,12 +54,10 @@ for folder_n = 1:size(folders,1)                                           % Loo
     fprintf('\nStarting %s\n\n', folders(folder_n).name)                   % Starting message
     p_path_t = sprintf('%s/%s', path, folders(folder_n).name);             % Create path for participants folder
     p_name_t = folders(folder_n).name;                                     % Create variable to store participant ID
-    %ADDS_ET_data.(p_name_t) = struct();                                    % Create fieldname for the participant in output data variable
     cd(p_path_t)                                                           % Change to that path
     try
         dataFilePaths_t = subdir(file_search_str);                         % Try to generate paths for the ET data for that participant
     catch                                                                  % If there is an error
-        %ADDS_ET_data.(folders(folder_n).name) = 'No Data';                 % Make a note of the lack of data
         fprintf('\nNo data found for %s\n\n', folders(folder_n).name)      % No data found message
         continue                                                           % Then skip to the next participant
     end
@@ -156,7 +153,7 @@ for folder_n = 1:size(folders,1)                                           % Loo
                             end
                     end
             end            
-            fprintf(fid,[dataToWrite_t '\n']);                             % Write data to csv file
+            if exist('fid', 'var'); fprintf(fid,[dataToWrite_t '\n']); end % Write data to csv file
         end % foundEvent_n
         if any(ismember(analysesToUse.analysis, 'export'))                 % If export option selected
             ouputFile_t = sprintf('%s/%s', eventOutputDir_t, p_name_t);    % Generate output path (including filename)
@@ -167,7 +164,6 @@ for folder_n = 1:size(folders,1)                                           % Loo
     clearvars(varsToClear{:}, '-except', 'folder_n')                       % Tidy workspace
 end % folder_n
 
-fclose(fid);                                                               % Close the data file
+if exist('fid', 'var'); fclose(fid); end                                   % Close the data file
 clearvars(varsToClear{:})                                                  % Tidy workspace
 cd(orig_path)                                                              % Change back to the original file path
-% save(sprintf('ADDS_ET_data_%s',datestr(now,'dd_mm_yy',1)), 'ADDS_ET_data');% Save the ADDS_ET_data structure

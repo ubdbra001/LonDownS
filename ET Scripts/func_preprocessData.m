@@ -4,4 +4,4 @@ LXRX_LYRY = data_in(:,[9, 22, 10, 23]);            % Extract data for individual
 
 LXRX_LYRY(LXRX_LYRY<-0.05|LXRX_LYRY>1.05) = NaN;   % Remove samples where participant was not looking at the screen
 
-data_out = [data_in(:,1) LXRX_LYRY];               % Append sample times to data
+data_out = [data_in(:,1) (data_in(:,1)-data_in(1,1)) LXRX_LYRY]; % Append sample times to data
