@@ -1,4 +1,3 @@
-columns = [1 9 10 22 23];
 Fs = 60;
 time = 9.5;
 trial_n = 1;
