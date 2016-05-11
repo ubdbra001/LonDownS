@@ -9,6 +9,7 @@ dataParDir      = '/Volumes/ADDS/Dan/Exported ET';                  % Dir for da
 taskSelectstr   = 'Which task would you like to process?';          % String for task selection box
 dataSelectstr   = 'Which participants would you like to process?';  % Sring for participant selection box
 oldFontSize_t   = get(0, 'DefaultUicontrolFontSize');               % Get default font size for UI elements
+marker_fname_t    = 'event_markers.txt';                                   % Set filename for event markers
 
 
 %% Fixation Parameters
@@ -30,6 +31,7 @@ fixParams.DegPerPix       = mean(radtodeg(2*atan(fixParams.ScreenSize./(2*fixPar
 
 %% Select task and participants to analyse
 addpath(orig_path)
+events = readtable(marker_fname_t);
 cd(dataParDir);
 folders = dir();
 folders = folders(~strncmpi('.', {folders.name}, 1));
@@ -37,6 +39,8 @@ folders = folders(~strncmpi('.', {folders.name}, 1));
 set(0, 'DefaultUicontrolFontSize', 14);                                    % Set UI font size to 14 for better readability
 [t_ind, ~] = listdlg('ListString', {folders.name}, 'SelectionMode', 'single', 'PromptString', taskSelectstr, 'ListSize', [400 300]);
 dataAnalysisDir = sprintf('%s/%s', dataParDir, folders(t_ind).name);
+[~, e_ind] = ismember(folders(t_ind).name, events.Name);
+fixParams.TrialLength = events.Event_length(e_ind)/1000;
 
 cd(dataAnalysisDir);
 
@@ -55,8 +59,6 @@ for participant_n = 1:numel(selectedParticipants) % Loop through each selected p
 
     pName   = selectedParticipants{participant_n}(1:end-4); % Generate variable name 
     dataIn  = load(selectedParticipants{participant_n});    % Load .mat data
-    clear dataIn
-    
     trials  = numel(dataIn.(pName)); % Get the number of trials
     
     for trial_n = 1:trials % Start loop for each trial
