@@ -12,4 +12,4 @@ for sample_n = 1:size(resampledData,1)
     end
 end
 
-dataOut = [(dataIn(1,1) + samplePoints*1e6)' samplePoints resampledData];
+dataOut = [(dataIn(1,1) + samplePoints*1e6)' samplePoints' resampledData];
