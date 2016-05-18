@@ -14,13 +14,13 @@ XYdata(~goodSamples,:) = NaN; % Mark any samples where either X or Y coordinates
 
 % Bilateral filtering algorithm (Magic!!)
 [x1, x2] = meshgrid(XYdata(:,1), XYdata(:,1));
-iwX = exp(-(x1-x2).^2./(2.*iscales.^2));
+iwX = exp(-(x1-x2).^2./(2.*iscales.^2)); % Calculate the absolute difference between each sample and all the other samples for the X axis (expressed as exponential?)
 iwaX = 1; %((x1-x2)<100);
 [y1, y2] = meshgrid(XYdata(:,2), XYdata(:,2));
-iwY = exp(-(y1-y2).^2./(2.*iscales.^2));
+iwY = exp(-(y1-y2).^2./(2.*iscales.^2)); % Calculate the absolute difference between each sample and all the other samples for the Y axis (expressed as exponential?)
 iwaY = 1; %((x1-x2)<100);
 [t1, t2] = meshgrid((1:length(XYdata)), (1:length(XYdata)));
-dw = exp(-(t1-t2).^2./(2.*scales.^2));
+dw = exp(-(t1-t2).^2./(2.*scales.^2)); % Calculate the distance between each sample and all the other samples (expressed as exponential?)
 
 tw = iwaX.*iwaY.*iwX .* iwY .* dw;
 
