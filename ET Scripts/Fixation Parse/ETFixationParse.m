@@ -28,6 +28,7 @@ fixParams = struct('SamplingFrequency', 60,...     % Sampling frequency in Hz
 fixParams.MovWinThreshold = fixParams.VelocityThreshold/3; % If the (up to) five samples immediately preceeding the saccade were above a threshold...
 fixParams.AvgVelTreshold  = fixParams.VelocityThreshold/3; % If the average velocity over the previous fixation was above a threshold...                   
 fixParams.DegPerPix       = mean(radtodeg(2*atan(fixParams.ScreenSize./(2*fixParams.DistFromScreen)))./fixParams.ScreenResolution); % Mean degrees per pixel ~ 0.034 @1360x768 at 60cm
+fixParams.MaxSamplesToInterpolate = fixParams.MaxToInterpolate/(1/fixParams.SamplingFrequency);
 
 %% Select task and participants to analyse
 addpath(orig_path)
