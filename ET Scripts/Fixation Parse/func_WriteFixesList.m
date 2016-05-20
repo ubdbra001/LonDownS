@@ -42,9 +42,9 @@ function [average, data] = quick_average(XorY)
     if XorY == 1; RCol = [3 5]; SCol = 3; % X axis = 1
     else RCol = [4 6]; SCol = 4; end      % Y axis = 2
 
-    data = mean(roughIn(fixesList(fix_n,1):fixesList(fix_n,2)-1, RCol),2);
-    ind = find(smoothIn(fixesList(fix_n,1):fixesList(fix_n,2)-1, 9)==1);
-    data(ind) = smoothIn(ind+fixesList(fix_n,1)-1, SCol)./fixParams.ScreenResolution(XorY); % Replace all non interpolated values with the mean of the rough data
+    data = mean(roughIn(fixesList(fix_n,1):fixesList(fix_n,2)-1, RCol),2); % Put the rough data in the data variable
+    ind = find(smoothIn(fixesList(fix_n,1):fixesList(fix_n,2)-1, 9)==1);   % Find any instances of interpolated data
+    data(ind) = smoothIn(ind+fixesList(fix_n,1)-1, SCol)./fixParams.ScreenResolution(XorY); % Replace all missing values with interpolated smooth data
     
     average = mean(data);
 end

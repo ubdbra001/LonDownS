@@ -67,7 +67,7 @@ for participant_n = 1:numel(selectedParticipants) % Loop through each selected p
 
         dataOut.(pName){trial_n}.rough  = func_dataResample(dataIn.(pName){trial_n}, fixParams); % Resample data so it's at 60Hz
         dataOut.(pName){trial_n}.smooth = func_dataSmooth(dataOut.(pName){trial_n}.rough); % Run smoothing function on rough data
-        func_fixationFilter(dataOut.(pName){trial_n}.rough, dataOut.(pName){trial_n}.smooth, fixParams);
+        [dataOut.(pName){trial_n}.smooth, dataOut.(pName){trial_n}.fixList_init, dataOut.(pName){trial_n}.fixList_clean] = func_fixationFilter(dataOut.(pName){trial_n}.rough, dataOut.(pName){trial_n}.smooth, fixParams);
 
 
         % Run subFixationFilter (or rewritten version of it) on data
