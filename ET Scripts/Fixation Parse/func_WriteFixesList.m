@@ -6,7 +6,6 @@ function fixesList = func_writeFixesList(roughIn, smoothIn, fixParams)
 
 % FixesList=[FixStartIt FixEndIt FixDur FixAvgX FixAvgY FixAvgVar SmoothPursuit FixStartTime FixEndTime]
 
-% Starts by setting up a load of flags(?)
 
 % Run through length of trial
 % If there is a valid fix & it is not already processing a fixation
@@ -19,6 +18,7 @@ function fixesList = func_writeFixesList(roughIn, smoothIn, fixParams)
     % Record fixation end time point (see above)
     % Record sample fixation ended at
     % calculate the fixation duration
+
     
     % Calculate average fixation position
     % If data has been interpolated use the interpolated samples, otherwise

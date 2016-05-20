@@ -10,7 +10,7 @@ dataParDir      = '/Volumes/ADDS/Dan/Exported ET';                  % Dir for da
 taskSelectstr   = 'Which task would you like to process?';          % String for task selection box
 dataSelectstr   = 'Which participants would you like to process?';  % Sring for participant selection box
 oldFontSize_t   = get(0, 'DefaultUicontrolFontSize');               % Get default font size for UI elements
-marker_fname_t    = 'event_markers.txt';                                   % Set filename for event markers
+marker_fname_t  = 'event_markers.txt';                              % Set filename for event markers
 
 
 %% Fixation Parameters

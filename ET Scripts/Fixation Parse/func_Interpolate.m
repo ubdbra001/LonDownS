@@ -21,11 +21,15 @@ for missData_n = 1:numel(startOfMissData) % For each of the missing data startin
         continue
     end
 
-    averageXY = round(mean(smoothData(lastSaccade+1:startOfMissData(missData_n)-1,3:4))); % Calculate the mean co-ordinate for that fixation (i.e fixation point)  
+    averageXY = round(mean(smoothData(lastSaccade+1:startOfMissData(missData_n)-1,3:4),1)); % Calculate the mean co-ordinate for that fixation (i.e fixation point)  
     smoothData(startOfMissData(missData_n):endOfMissData(missData_n), 3:4)    = repmat(averageXY,numel(startOfMissData(missData_n):endOfMissData(missData_n)),1);   % Set the missing values to equal the average of the fixation
     smoothData(startOfMissData(missData_n):endOfMissData(missData_n), [5 9])  = ones(size(smoothData(startOfMissData(missData_n):endOfMissData(missData_n), [5 9]))); % Set the ValidFixes10 & InterpolateFlag to 1 for the replaced values
-
-    smoothData(startOfMissData(missData_n)-1:endOfMissData(missData_n)+1,:) = func_findFixes(smoothData(startOfMissData(missData_n)-1:endOfMissData(missData_n)+1,:), fixParams);
+    
+    if endOfMissData(missData_n) < size(smoothData, 1)
+        smoothData(startOfMissData(missData_n)-1:endOfMissData(missData_n)+1,:) = func_findFixes(smoothData(startOfMissData(missData_n)-1:endOfMissData(missData_n)+1,:), fixParams);
+    else
+        smoothData(startOfMissData(missData_n)-1:endOfMissData(missData_n),:) = func_findFixes(smoothData(startOfMissData(missData_n)-1:endOfMissData(missData_n),:), fixParams);
+    end
 end
 
 % Calculate the mean euclidean distance of each point in that fixation from the central point?
