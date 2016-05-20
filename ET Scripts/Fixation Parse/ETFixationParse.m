@@ -3,7 +3,8 @@
 % Dan Brady 
 
 %% Will proabbly need to define some things here
-orig_path       = fileparts(mfilename('fullpath'));                       % Record folder the script was run from
+orig_path       = fileparts(mfilename('fullpath'));                 % Record folder the script was run from
+addpath(cd(cd('..')))                                               % Add parent path so script can find event_markers file
 dataParDir      = '/Volumes/ADDS/Dan/Exported ET';                  % Dir for data in
 % Dir for data out
 taskSelectstr   = 'Which task would you like to process?';          % String for task selection box

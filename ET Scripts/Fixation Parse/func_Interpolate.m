@@ -3,7 +3,7 @@ function smoothData = func_Interpolate(smoothData, fixParams)
 % Smooth = [Time1 Time2 X Y ValidFixes10 BelowVeloc10 Saccs10 Vel InterpolatingFlag]
 
 
-missingData     = diff(isnan([0; smoothData(:,3); 0])); % Find the edges of the missing data
+missingData     = diff(isnan([0;0; smoothData(2:end,3); 0])); % Find the edges of the missing data
 startOfMissData = find(missingData == 1);             % Find where the missing data portions start
 endOfMissData   = find(missingData == -1)-1;          % Find where the missing data portions end
 
@@ -15,12 +15,10 @@ for missData_n = 1:numel(startOfMissData) % For each of the missing data startin
         continue                                       % Skip interpolation
     end
     
-    lastSaccade = find(smoothData(1:startOfMissData(missData_n),5)==0,1,'last'); % Find the last saccade before the data dropped
+    lastSaccade = find(smoothData(1:startOfMissData(missData_n)-1,5)==0,1,'last'); % Find the last saccade before the data dropped
     
-    if isempty(lastSaccade) && isnan(smoothData(1,3))
+    if isempty(lastSaccade)
         continue
-    elseif isempty(lastSaccade) && ~isnan(smoothData(1,3))
-        lastSaccade = 0;
     end
 
     averageXY = round(mean(smoothData(lastSaccade+1:startOfMissData(missData_n)-1,3:4))); % Calculate the mean co-ordinate for that fixation (i.e fixation point)  
