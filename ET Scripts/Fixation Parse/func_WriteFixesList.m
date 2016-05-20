@@ -3,32 +3,51 @@ function fixesList = func_writeFixesList(roughIn, smoothIn, fixParams)
 % roughIn   = [time1 time2 XL YL XR YR]
 % smoothIn  = [time1 time2 X Y ValidFixes10 BelowVeloc10 Saccs10 Vel InterpolatingFlag]
 
+% FixesList = [FixStartIt FixEndIt FixDur FixAvgX FixAvgY FixAvgVar SmoothPursuit FixStartTime FixEndTime]
 
-% FixesList=[FixStartIt FixEndIt FixDur FixAvgX FixAvgY FixAvgVar SmoothPursuit FixStartTime FixEndTime]
+fixations     = diff([0; smoothIn(:,5)]);   % Find edges of fixations
+fixationEnd   = find(fixations == -1);      % Find the end points of fixations
+fixationStart = find(fixations == 1, numel(fixationEnd)); % Find the start point of the fixations with correction if the final fixation does have an end point
+fixesList     = zeros(numel(fixationStart),9);       % Generate variable to store fixations
 
+fixesList(:,1:2) = [fixationStart, fixationEnd];     % Note the sample numbers where the fixation samples started and ended
+fixesList(:,3)   = (fixesList(:,2) - fixesList(:,1))/fixParams.SamplingFrequency; % Calculate the duration of the fixation
+fixesList(:,8:9) = reshape(smoothIn(fixesList(:,1:2),2), size(fixesList(:,1:2))); % Not the times (relative to the start) when the fixation started and ended
 
-% Run through length of trial
-% If there is a valid fix & it is not already processing a fixation
-    % Add one to the found fixes counter
-    % Record fixation start time point (They use column 1: absolute time,
-    % may be worth using column 2: relative time)
-    % Record sample fixation started at
-    % Switch to processing fixation mode
-% If in processing fixation mode & end of a fixation is reached
-    % Record fixation end time point (see above)
-    % Record sample fixation ended at
-    % calculate the fixation duration
+for fix_n = 1:size(fixesList,1)
 
+    [FixAvgX, XData] = quick_average(1); % Calculate mean X value for fixation
+    [FixAvgY, YData] = quick_average(2); % Calculate mean Y value for fixation
     
-    % Calculate average fixation position
-    % If data has been interpolated use the interpolated samples, otherwise
-    % use the rough data
-    % NB: This uses the proportion of the screen, so the smooth XY values
-    % need to be converted back
-    
-% Caclulate the average variation for the fixation
+    FixAvgVar = mean(sqrt((XData-FixAvgX).^2+(YData-FixAvgY).^2)/2); % Calculate mean variation around the mean fixation value produced in last 2 lines
 
-% Work out if it is smooth pursuit
-    % If the fixation is longer than 10 samples
+    fixesList(fix_n, 4:6) = [FixAvgX FixAvgY FixAvgVar*1000]; % Write all to output varible 
     
+    if fixesList(:,2) - fixesList(:,1) > 10 % Ensure that the fixation is at least 10 samples long
+        StartOfFix = mean(smoothIn(fixesList(:,1):fixesList(:,1)+5, 3:4))./fixParams.ScreenResolution; % Get the mean position for the first 5 samples of the fixation
+        EndOfFix   = mean(smoothIn(fixesList(:,2)-5:fixesList(:,2), 3:4))./fixParams.ScreenResolution; % Get the mean position for the last 5 samples of the fixation
+        FixTravel  = sqrt(((EndOfFix(1)-StartOfFix(1))^2)+((EndofFix(2)-StartofFix(2))^2))/2;          % Calculate the mean euclidian distance between the mean start and end positions
+        if FixTravel>fixParams.SmoothPursuitThreshold     % If this is greater than the SmoothPursuitThreshold then mark it as a smooth pursuit
+            fixesList(fix_n,7)=1;
+        end
+    end
+end % fix_n
+
+%%
+function [average, data] = quick_average(XorY)
+    
+    % Small nested function to generate X or Y data (with interpolated
+    % substitutions if needed) and the means
+
+    if XorY == 1; RCol = [3 5]; SCol = 3; % X axis = 1
+    else RCol = [4 6]; SCol = 4; end      % Y axis = 2
+
+    data = mean(roughIn(fixesList(fix_n,1):fixesList(fix_n,2)-1, RCol),2);
+    ind = find(smoothIn(fixesList(fix_n,1):fixesList(fix_n,2)-1, 9)==1);
+    data(ind) = smoothIn(ind+fixesList(fix_n,1)-1, SCol)./fixParams.ScreenResolution(XorY); % Replace all non interpolated values with the mean of the rough data
+    
+    average = mean(data);
+end
+
+end  
  
