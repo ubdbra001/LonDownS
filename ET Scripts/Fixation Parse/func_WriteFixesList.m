@@ -5,12 +5,12 @@ function fixesList = func_writeFixesList(roughIn, smoothIn, fixParams)
 
 % FixesList = [FixStartIt FixEndIt FixDur FixAvgX FixAvgY FixAvgVar SmoothPursuit FixStartTime FixEndTime]
 
-fixations     = diff([0; smoothIn(:,5)]);   % Find edges of fixations
-fixationEnd   = find(fixations == -1);      % Find the end points of fixations
+fixations     = diff([0; smoothIn(:,5)]);                 % Find edges of fixations
+fixationEnd   = find(fixations == -1);                    % Find the end points of fixations
 fixationStart = find(fixations == 1, numel(fixationEnd)); % Find the start point of the fixations with correction if the final fixation does have an end point
-fixesList     = zeros(numel(fixationStart),9);       % Generate variable to store fixations
+fixesList     = zeros(numel(fixationStart),9);            % Generate variable to store fixations
 
-fixesList(:,1:2) = [fixationStart, fixationEnd];     % Note the sample numbers where the fixation samples started and ended
+fixesList(:,1:2) = [fixationStart, fixationEnd];                                  % Note the sample numbers where the fixation samples started and ended
 fixesList(:,3)   = (fixesList(:,2) - fixesList(:,1))/fixParams.SamplingFrequency; % Calculate the duration of the fixation
 fixesList(:,8:9) = reshape(smoothIn(fixesList(:,1:2),2), size(fixesList(:,1:2))); % Not the times (relative to the start) when the fixation started and ended
 
@@ -23,11 +23,11 @@ for fix_n = 1:size(fixesList,1)
 
     fixesList(fix_n, 4:6) = [FixAvgX FixAvgY FixAvgVar*1000]; % Write all to output varible 
     
-    if fixesList(:,2) - fixesList(:,1) > 10 % Ensure that the fixation is at least 10 samples long
+    if fixesList(:,2) - fixesList(:,1) > 10                                                            % Ensure that the fixation is at least 10 samples long
         StartOfFix = mean(smoothIn(fixesList(:,1):fixesList(:,1)+5, 3:4))./fixParams.ScreenResolution; % Get the mean position for the first 5 samples of the fixation
         EndOfFix   = mean(smoothIn(fixesList(:,2)-5:fixesList(:,2), 3:4))./fixParams.ScreenResolution; % Get the mean position for the last 5 samples of the fixation
         FixTravel  = sqrt(((EndOfFix(1)-StartOfFix(1))^2)+((EndofFix(2)-StartofFix(2))^2))/2;          % Calculate the mean euclidian distance between the mean start and end positions
-        if FixTravel>fixParams.SmoothPursuitThreshold     % If this is greater than the SmoothPursuitThreshold then mark it as a smooth pursuit
+        if FixTravel>fixParams.SmoothPursuitThreshold                                                  % If this is greater than the SmoothPursuitThreshold then mark it as a smooth pursuit
             fixesList(fix_n,7)=1;
         end
     end
