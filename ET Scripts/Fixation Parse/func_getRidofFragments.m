@@ -1,32 +1,16 @@
-function smoothData = func_getRidofFragments(smoothData, fixParams)
+function smoothData = func_getRidofFragments(smoothData)
 
+% If there is a break in the data then go back and 'unmark' the rest of that fragmentary fixation.
 % SmoothData = [Time1 Time2 X Y ValidFixes10 BelowVeloc10 Saccs10 Vel InterpolatingFlag]
 
-[startOfMissData, endOfMissData] = func_findMissData(smoothData);
+[startOfMissData, endOfMissData] = func_findMissData(smoothData); % Find the beginning and end indices for any missing data
 
-for missData_n = 1:numel(startOfMissData)
-    
+for missData_n = 1:numel(startOfMissData) % For each section of missing data
+    startOfFixation = find(smoothData(1:startOfMissData(missData_n)-1,5) == 0, 1, 'last'); % Find the index of the last saccade preceding the missing data
+    if endOfMissData(missData_n) < size(smoothData,1) % If the index of the end of the missing data is less than the total length of the trial
+        endOfFixation = find(smoothData(endOfMissData(missData_n)+2:end,5) == 0, 1, 'first')+endOfMissData(missData_n); % Find the next saccade after the section of missing data
+    else % If not
+        endOfFixation = size(smoothData,1); % Set it to the final sample index 
+    end
+    smoothData(startOfFixation:endOfFixation, 5) = 0; % Set the fixation marker to 0 for all samples between the two points
 end
-
-% if there is a break in the data then go back and delete the rest of that fragmentary fixation.
-
-% Run through all samples in trial
-% If the current and previous sample are valid do nothing
-
-% Otherwise:
-% If at the end of a fragment (if last sample was classified as a fixation)
-% Set DeleteGo flag to one
-% Record position of loop
-
-% If at the beginning of a fragment (the next sample is classed as a
-% fixation)
-% Set DeleteGo flag to one
-% Record position of loop
-% Set next sample to not be a fixation
-
-% DeleteGo:
-% If at end of a fixation then work backwards and delete fixation maker
-% until a saccade or another break in the data is found
-
-% If at the beginning of a fixation then work forward and do the same thing
-% as above
