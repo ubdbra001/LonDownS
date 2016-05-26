@@ -3,7 +3,7 @@ function smoothData = func_getRidofFragments(smoothData)
 % If there is a break in the data then go back and 'unmark' the rest of that fragmentary fixation.
 % SmoothData = [Time1 Time2 X Y ValidFixes10 BelowVeloc10 Saccs10 Vel InterpolatingFlag]
 
-[startOfMissData, endOfMissData] = func_findMissData(smoothData); % Find the beginning and end indices for any missing data
+[startOfMissData, endOfMissData] = func_findDataEdges(smoothData, 'missing'); % Find the beginning and end indices for any missing data
 
 for missData_n = 1:numel(startOfMissData) % For each section of missing data
     startOfFixation = find(smoothData(1:startOfMissData(missData_n)-1,5) == 0, 1, 'last'); % Find the index of the last saccade preceding the missing data

@@ -2,7 +2,7 @@ function smoothData = func_Interpolate(smoothData, fixParams)
 
 % Smooth = [Time1 Time2 X Y ValidFixes10 BelowVeloc10 Saccs10 Vel InterpolatingFlag]
 
-[startOfMissData, endOfMissData] = func_findMissData(smoothData);
+[startOfMissData, endOfMissData] = func_findDataEdges(smoothData, 'missing');
 
 for missData_n = 1:numel(startOfMissData) % For each of the missing data starting points
     previousSampleNotFixation = ~smoothData(startOfMissData(missData_n)-1,6); % Check that the previous sample was a fixation

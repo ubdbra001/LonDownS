@@ -5,10 +5,9 @@ function fixesList = func_writeFixesList(roughIn, smoothIn, fixParams)
 
 % FixesList = [FixStartIt FixEndIt FixDur FixAvgX FixAvgY FixAvgVar SmoothPursuit FixStartTime FixEndTime]
 
-fixations     = diff([0; smoothIn(:,5)]);                 % Find edges of fixations
-fixationEnd   = find(fixations == -1);                    % Find the end points of fixations
-fixationStart = find(fixations == 1, numel(fixationEnd)); % Find the start point of the fixations with correction if the final fixation does have an end point
-fixesList     = zeros(numel(fixationStart),9);            % Generate variable to store fixations
+[fixationStart, fixationEnd] = func_findDataEdges(smoothIn, 'fixation');
+
+fixesList = zeros(numel(fixationStart),9);            % Generate variable to store fixations
 
 fixesList(:,1:2) = [fixationStart, fixationEnd];                                  % Note the sample numbers where the fixation samples started and ended
 fixesList(:,3)   = (fixesList(:,2) - fixesList(:,1))/fixParams.SamplingFrequency; % Calculate the duration of the fixation
@@ -26,7 +25,7 @@ for fix_n = 1:size(fixesList,1)
     if fixesList(:,2) - fixesList(:,1) > 10                                                            % Ensure that the fixation is at least 10 samples long
         StartOfFix = mean(smoothIn(fixesList(:,1):fixesList(:,1)+5, 3:4))./fixParams.ScreenResolution; % Get the mean position for the first 5 samples of the fixation
         EndOfFix   = mean(smoothIn(fixesList(:,2)-5:fixesList(:,2), 3:4))./fixParams.ScreenResolution; % Get the mean position for the last 5 samples of the fixation
-        FixTravel  = sqrt(((EndOfFix(1)-StartOfFix(1))^2)+((EndofFix(2)-StartofFix(2))^2))/2;          % Calculate the mean euclidian distance between the mean start and end positions
+        FixTravel  = sqrt(((EndOfFix(1)-StartOfFix(1))^2)+((EndOfFix(2)-StartOfFix(2))^2))/2;          % Calculate the mean euclidian distance between the mean start and end positions
         if FixTravel>fixParams.SmoothPursuitThreshold                                                  % If this is greater than the SmoothPursuitThreshold then mark it as a smooth pursuit
             fixesList(fix_n,7)=1;
         end
