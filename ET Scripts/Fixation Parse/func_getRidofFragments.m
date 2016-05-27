@@ -5,8 +5,8 @@ function smoothData = func_getRidofFragments(smoothData, varargin)
 if isempty(varargin)
     [startOfData, endOfData] = func_findDataEdges(smoothData, 'missing'); % Find the beginning and end indices for any missing data
 else
-    startOfData = varargin{1};
-    endOfData   = varargin{2};
+    startOfData = varargin(1);
+    endOfData   = varargin(2);
 end
 
 for missData_n = 1:numel(startOfData) % For each section of missing data

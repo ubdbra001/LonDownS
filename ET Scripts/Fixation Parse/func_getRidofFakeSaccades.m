@@ -12,32 +12,32 @@ for saccade_n = 1:numel(saccadeStart)
     fixationStart = find(smoothData(1:saccadeStart(saccade_n)-1,6) == 0, 1, 'last')+1; % Work out how far back the previous fixation was
     
     %% Check if saccade was in a noisy patch (aveVelCrit)
-    AvgVel = mean(smoothData(fixationStart:saccadeStart-1), 8);   % Work out the average velocity for the period between the fixation and the saccade
-    smoothData(saccadeStart,10) = AvgVel>fixParams.AvgVelThreshold; % If the average velocity exceeds the threshold then set flag in column 10
+    AvgVel = mean(smoothData(fixationStart:saccadeStart(saccade_n)-1, 8));   % Work out the average velocity for the period between the fixation and the saccade
+    smoothData(saccadeStart(saccade_n),10) = AvgVel>fixParams.AvgVelThreshold; % If the average velocity exceeds the threshold then set flag in column 10
     
     %% Check if saccade was in a noisy patch (movWinCrit)
-    if saccadeStart - fixationStart > 5 % If there are more than 5 samples in the fixation 
-        MovWin = mean(smoothData(saccadeStart-6:saccadeStart-1,8)); % Calculate the average velocity for the 5 samples before the saccade 
-    elseif saccadeStart - fixationStart > 1 % If there are less than 6 samples but more than one sample in the fixation
-        MovWin = mean(smoothData(fixationStart:saccadeStart-1,8)); % Calculate the average velocity for the samples available
+    if saccadeStart(saccade_n) - fixationStart > 5 % If there are more than 5 samples in the fixation 
+        MovWin = mean(smoothData(saccadeStart(saccade_n)-6:saccadeStart(saccade_n)-1,8)); % Calculate the average velocity for the 5 samples before the saccade 
+    elseif saccadeStart(saccade_n) - fixationStart > 1 % If there are less than 6 samples but more than one sample in the fixation
+        MovWin = mean(smoothData(fixationStart:saccadeStart(saccade_n)-1,8)); % Calculate the average velocity for the samples available
     else % If there is only one sample in the fixation then set the value to 0
         MovWin = 0;
     end
-    smoothData(saccadeStart,11) = MovWin>fixParams.MovWinThreshold; % If this falls above the MovWinThreshold then set flag in column 11
+    smoothData(saccadeStart(saccade_n),11) = MovWin>fixParams.MovWinThreshold; % If this falls above the MovWinThreshold then set flag in column 11
     
     %% Check if there is a substantial dinocular disparity (binocDisparityCrit)
     % Get the rough data from sample at the start of the saccade and the previous two samples
     % and find the binocular disparity between the samples for the L and R eyes
-    XYRoughDiff = [roughData(saccadeStart-2:saccadeStart, 3) - roughData(saccadeStart-2:saccadeStart, 5); roughData(saccadeStart-2:saccadeStart, 4) - roughData(saccadeStart-2:saccadeStart, 6)];
+    XYRoughDiff = [roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 3) - roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 5), roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 4) - roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 6)];
     % If any falls above the MaxBinDispThresh (for max values) or below -MaxBinDispThresh (for min values) mark in column 12
-    smoothData(saccadeStart,12) = or(max(XRoughDiff(:,1))>fixParams.MaxBinDispThresh, min(XRoughDiff(:,1))<-fixParams.MaxBinDispThresh, max(XRoughDiff(:,2))>fixParams.MaxBinDispThresh, min(XRoughDiff(:,2))<-fixParams.MaxBinDispThresh);
+    smoothData(saccadeStart(saccade_n),12) = max(XYRoughDiff(:,1))>fixParams.MaxBinDispThresh || min(XYRoughDiff(:,1))<-fixParams.MaxBinDispThresh || max(XYRoughDiff(:,2))>fixParams.MaxBinDispThresh || min(XYRoughDiff(:,2))<-fixParams.MaxBinDispThresh;
         
     %% Check if samples before saccade was interpolated (interpolatedThruSaccade)
-    smoothData(saccadeStart+1,14) = all(smoothData(saccadeStart-4:saccadeStart-1, 9)==1); % If all of the 4 samples before the saccade have an interpolation flag then mark in columm 14 of the following sample
+    smoothData(saccadeStart(saccade_n)+1,14) = all(smoothData(saccadeStart(saccade_n)-4:saccadeStart(saccade_n)-1, 9)==1); % If all of the 4 samples before the saccade have an interpolation flag then mark in columm 14 of the following sample
     
     %% If fake saccade detected
-    if any([smoothData(saccadeStart,10:12), smoothData(saccadeStart+1,14)] == 1)
-        smoothData = func_getRidofFragments(smoothData, [saccadeStart, saccadeEnd]);
+    if any([smoothData(saccadeStart(saccade_n),10:12), smoothData(saccadeStart(saccade_n)+1,14)])
+        smoothData = func_getRidofFragments(smoothData, [saccadeStart(saccade_n), saccadeEnd(saccade_n)]);
     end
         
 end
