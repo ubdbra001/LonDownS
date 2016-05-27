@@ -17,54 +17,34 @@ for saccade_n = 1:numel(saccadeStart)
     
     %% Check if saccade was in a noisy patch (movWinCrit)
     if saccadeStart - fixationStart > 5 % If there are more than 5 samples in the fixation 
-        MovWin = mean(smoothData(saccadeStart-6:saccadeStart-1,8)); 
-    elseif saccadeStart - fixationStart > 1 % If there is more than one sample in the fixation
-        MovWin = mean(smoothData(fixationStart:saccadeStart-1,8));
-    else
+        MovWin = mean(smoothData(saccadeStart-6:saccadeStart-1,8)); % Calculate the average velocity for the 5 samples before the saccade 
+    elseif saccadeStart - fixationStart > 1 % If there are less than 6 samples but more than one sample in the fixation
+        MovWin = mean(smoothData(fixationStart:saccadeStart-1,8)); % Calculate the average velocity for the samples available
+    else % If there is only one sample in the fixation then set the value to 0
         MovWin = 0;
     end
     smoothData(saccadeStart,11) = MovWin>fixParams.MovWinThreshold; % If this falls above the MovWinThreshold then set flag in column 11
     
+    %% Check if there is a substantial dinocular disparity (binocDisparityCrit)
+    % Get the rough data from sample at the start of the saccade and the previous two samples
+    % and find the binocular disparity between the samples for the L and R eyes
+    XYRoughDiff = [roughData(saccadeStart-2:saccadeStart, 3) - roughData(saccadeStart-2:saccadeStart, 5); roughData(saccadeStart-2:saccadeStart, 4) - roughData(saccadeStart-2:saccadeStart, 6)];
+    % If any falls above the MaxBinDispThresh (for max values) or below -MaxBinDispThresh (for min values) mark in column 12
+    smoothData(saccadeStart,12) = or(max(XRoughDiff(:,1))>fixParams.MaxBinDispThresh, min(XRoughDiff(:,1))<-fixParams.MaxBinDispThresh, max(XRoughDiff(:,2))>fixParams.MaxBinDispThresh, min(XRoughDiff(:,2))<-fixParams.MaxBinDispThresh);
+        
+    %% Check if samples before saccade was interpolated (interpolatedThruSaccade)
+    smoothData(saccadeStart+1,14) = all(smoothData(saccadeStart-4:saccadeStart-1, 9)==1); % If all of the 4 samples before the saccade have an interpolation flag then mark in columm 14 of the following sample
     
+    %% If fake saccade detected
+    if any([smoothData(saccadeStart,10:12), smoothData(saccadeStart+1,14)] == 1)
+        smoothData = func_getRidofFragments(smoothData, [saccadeStart, saccadeEnd]);
+    end
+        
 end
 % Run through all samples in the trial (starting from the 6th sample?)
 % If the current sample is marked as a saccade and the previous one was not
 % Set the fake saccade flag to 0 and check the following:
 
-
-% to 1 and not in column 10
-
-%% Check if saccade was in a noisy patch (movWinCrit)
-% If the number of samples in the fixation is greater than 6 then grab the
-% velocity for the 5 samples before start of the saccade
-
-% If the number of samples in the fixation is greater than 1 but less
-% than 6 then grab the number of samples
-
-% If there is only one sample in the fixation then set the value to 0
-
-% Calculate the mean of the samples before the saccade
-
-
-%% Check if there is a substantial dinocular disparity (binocDisparityCrit)
-% For the sample at the start of the saccade, or the previous two samples
-% Ensure the 3 sampes taken are above 0 (proper values) and if they are
-% work out the difference between the on-screen position for the L and R
-% eyes for the X axis
-% If they are no set the difference to 0
-
-% Do the same for the Y axis
-
-% Find the Maximum and Minimum from each of these values
-
-% If any falls above the MaxBinDispThresh (for max values) or below
-% -MaxBinDispThresh (for min values) 
-% Then set fakeSaccFlag to 1 and mark in column 12
-
-%% Check if samples before saccade was interpolated (interpolatedThruSaccade)
-
-% If any of the 4 samples before the saccade have an interpolation flag
-% Then set fakeSaccFlag to 1 and mark in columm 14 of the following sample
 
 %% If the fakeSaccFlag is set to 1
 % Then work backwards to the start of the fixation and remove validFix
