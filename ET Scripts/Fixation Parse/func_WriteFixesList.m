@@ -1,4 +1,4 @@
-function fixesList = func_writeFixesList(roughIn, smoothIn, fixParams)
+function fixesList = func_writeFixesList(smoothIn, roughIn, fixParams)
 
 % roughIn   = [time1 time2 XL YL XR YR]
 % smoothIn  = [time1 time2 X Y ValidFixes10 BelowVeloc10 Saccs10 Vel InterpolatingFlag]
@@ -7,7 +7,7 @@ function fixesList = func_writeFixesList(roughIn, smoothIn, fixParams)
 
 [fixationStart, fixationEnd] = func_findDataEdges(smoothIn, 'fixation');
 
-fixesList = zeros(numel(fixationStart),9);            % Generate variable to store fixations
+fixesList = zeros(numel(fixationStart),9); % Generate variable to store fixations
 
 fixesList(:,1:2) = [fixationStart, fixationEnd];                                  % Note the sample numbers where the fixation samples started and ended
 fixesList(:,3)   = (fixesList(:,2) - fixesList(:,1))/fixParams.SamplingFrequency; % Calculate the duration of the fixation

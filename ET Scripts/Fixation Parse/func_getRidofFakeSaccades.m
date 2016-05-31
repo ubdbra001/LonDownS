@@ -37,7 +37,7 @@ for saccade_n = 1:numel(saccadeStart)
     
     %% If fake saccade detected
     if any([smoothData(saccadeStart(saccade_n),10:12), smoothData(saccadeStart(saccade_n)+1,14)])
-        smoothData = func_getRidofFragments(smoothData, [saccadeStart(saccade_n), saccadeEnd(saccade_n)]);
+        smoothData = func_getRidofFragments(smoothData, saccadeStart(saccade_n), saccadeEnd(saccade_n));
     end
         
 end

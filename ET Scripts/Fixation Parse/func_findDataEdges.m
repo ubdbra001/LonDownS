@@ -15,7 +15,10 @@ endInd = find(dataEdges == -1)-1;            % Find where the missing data porti
 
 switch type
     case {'missing', 'saccade'}
-        startInd = find(dataEdges == 1);               % Find where the missing data portions start
+        startInd = find(dataEdges == 1); % Find where the missing data portions start
     case 'fixation'
-        startInd = find(dataEdges == 1, numel(endInd)); % Find the start point of the fixations with correction if the final fixation does have an end point
+        startInd = find(dataEdges == 1); % Find the start point of the fixations with correction if the final fixation does have an end point
+        if numel(startInd) ~= numel(endInd)
+            startInd = startInd(1:numel(endInd));
+        end
 end
