@@ -1,3 +1,8 @@
+% Plot Rough
+% Plot Smooth
+h = subplot(5,1,[1:3]);
+
+
 n = 4;
 y = [1 1 1.05 1.05]';
 
@@ -23,6 +28,6 @@ fixes_s.Faces = reshape(1:length(fixes_s.Vertices), 4, length(fixes_s.Vertices)/
 patch(fixes_s)
 ylim([0 max(y)]); % set Y limits
 set(h, 'ytick', [])
-h.YRuler.Axle.Visible = 'off'
+h.YRuler.Axle.Visible = 'off';
 set(h, 'box', 'off')
 set(h, 'xgrid', 'on')
