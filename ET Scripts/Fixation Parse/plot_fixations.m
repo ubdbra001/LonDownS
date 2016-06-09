@@ -5,7 +5,7 @@ set(0, 'DefaultFigurePosition', p(1,:))
 
 params = struct();
 
-params.colors = {'red', 'green', 'blue', 'magenta', 'cyan' };
+params.colors = lines(5);
 
 params.labels = struct('rough', {{'X Coordinates - Left Eye', 'Y Coordinates - Left Eye', 'X Coordinates - Right Eye', 'Y Coordinates - Right Eye'}},...
                        'smooth', {{'X Coordinates', 'Y Coordinates'}},...
@@ -39,8 +39,8 @@ params.legend_pos = el_list{1,2}(1) + el_list{1,2}(3);
 
 for element_n = 1:size(el_list,1)
     ETplot.(el_list{element_n,1}) = subplot('position', el_list{element_n,2});
-    ETplot.(el_list{element_n,1}) = func_plotData(ETplot.(el_list{element_n,1}), el_list(element_n,:), dataOut.ADDS_010{n}, params);
+    ETplot.(el_list{element_n,1}) = func_plotElements(ETplot.(el_list{element_n,1}), el_list(element_n,:), dataOut.ADDS_010{n}, params);
 end
 set(gcf, 'ToolBar', 'none', 'MenuBar', 'none');
-suptitle('ADDS_010: Object Familiarisation - Trial 4')
 
+title(ETplot.rough,'ADDS_010','Position', [4.75 1.25 0], 'FontSize', 16)

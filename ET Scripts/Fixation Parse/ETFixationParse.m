@@ -1,5 +1,5 @@
 %% Script for using Sam's fixation parsing scripts with our LonDownS ET data
-% V0.1 - 09/05/2016
+% V1.0 - 09/06/2016
 % Dan Brady 
 
 %% Will proabbly need to define some things here
@@ -64,17 +64,19 @@ for participant_n = 1:numel(selectedParticipants) % Loop through each selected p
     trials  = numel(dataIn.(pName)); % Get the number of trials
     
     for trial_n = 1:trials % Start loop for each trial
+        
+        dataDetails = {pName, folders(t_ind).name,trial_n};
 
         dataOut.(pName){trial_n}.rough  = func_dataResample(dataIn.(pName){trial_n}, fixParams); % Resample data so it is at 60Hz
         dataOut.(pName){trial_n}.smooth = func_dataSmooth(dataOut.(pName){trial_n}.rough);       % Run smoothing function on rough data
+        % Run fixation filter on the data
         [dataOut.(pName){trial_n}.smooth, dataOut.(pName){trial_n}.fixList_init, dataOut.(pName){trial_n}.fixList_clean] = func_fixationFilter(dataOut.(pName){trial_n}.rough, dataOut.(pName){trial_n}.smooth, fixParams);
 
-
-        % Run subFixationFilter (or rewritten version of it) on data
-        
+        func_plotData(dataOut.(pName){trial_n}, fixParams, dataDetails); % Display results in figure
+        waitfor(gcf); % Do not proceed until the figure is closed
+       
     end
 
 end
 
-% Display results? (Need to check what the script is doing after subFixationFilter)
 
