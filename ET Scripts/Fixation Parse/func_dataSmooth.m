@@ -8,7 +8,7 @@ iscales = 30;
 dataOut = NaN(length(dataIn), 4);
 dataOut(:,1:2) = dataIn(:,1:2);
 
-XYdata = [mean(dataIn(:,[3 5]),2)'; mean(dataIn(:,[4 6]),2)']'; % Calculate single coordinate for looking using mean if both eyes available, if not mark as NaN (missing)
+XYdata = [mean(dataIn(:,3:4),2)'; mean(dataIn(:,5:6),2)']'; % Calculate single coordinate for looking using mean if both eyes available, if not mark as NaN (missing)
 goodSamples = find(~any(isnan(XYdata),2));
 XYdata(~goodSamples,:) = NaN; % Mark any samples where either X or Y coordinates are NaN
 

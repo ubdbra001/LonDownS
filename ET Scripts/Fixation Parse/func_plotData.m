@@ -9,7 +9,7 @@ params = struct();
 
 params.colors = lines(5);
 
-params.labels = struct('rough', {{'X Coordinates - Left Eye', 'Y Coordinates - Left Eye', 'X Coordinates - Right Eye', 'Y Coordinates - Right Eye'}},...
+params.labels = struct('rough', {{'X Coordinates - Left Eye', 'X Coordinates - Right Eye','Y Coordinates - Left Eye',  'Y Coordinates - Right Eye'}},...
                        'smooth', {{'X Coordinates', 'Y Coordinates'}},...
                        'fixation',{{'Tentative fixations', 'Saved fixations'}},...
                        'flags', {{'Avg Vel during previous fixation', 'Vel Immediately pre-saccade', 'Binocular disparity pre-saccade', 'Displacement from previous fixation', 'Interpolated through saccade'}});
@@ -30,7 +30,7 @@ params.text = {'FontSize', 12, 'FontWeight', 'bold', 'HorizontalAlignment', 'rig
 
 params.ScreenResolution = fixParams.ScreenResolution;
              
-elementList = {'rough',    [0.06 0.69 0.8 0.20], {-0.05,0.90,sprintf('Rough\ndata')};
+elementList = {'rough',    [0.06 0.69 0.8 0.20], {-0.05,0.90,sprintf('Rough\ndata')}; % {name of element, position of element, {position of label, label text}}
                'smooth',   [0.06 0.47 0.8 0.20], {-0.05,0.90,sprintf('Smooth\ndata')};
                'fixation', [0.06 0.42 0.8 0.04], {-0.05,0.5,'Fixations'};
                'flags',    [0.06 0.31 0.8 0.10], {-0.05,0.5,'Flags'};
@@ -41,9 +41,9 @@ params.legend_pos = elementList{1,2}(1) + elementList{1,2}(3);
 %% Create each axes on a subplot and then draw each element on that axis
 
 for element_n = 1:size(elementList,1)
-    ETplot.(elementList{element_n,1}) = subplot('position', elementList{element_n,2});
-    ETplot.(elementList{element_n,1}) = func_plotElements(ETplot.(elementList{element_n,1}), elementList(element_n,:), Data, params);
+    ETplot.(elementList{element_n,1}) = subplot('position', elementList{element_n,2}); % Create the subplot
+    ETplot.(elementList{element_n,1}) = func_plotElements(ETplot.(elementList{element_n,1}), elementList(element_n,:), Data, params); % Populate the subplot
 end
-set(gcf, 'ToolBar', 'none', 'MenuBar', 'none');
+set(gcf, 'ToolBar', 'none', 'MenuBar', 'none'); % Hide Menu and toolbar
 
-title(ETplot.rough,sprintf('%s\n%s trial %d',dataName{:}),'Position', [round(max(Data.smooth(:,2)),1)/2 1.25 0], 'FontSize', 16, 'Interpreter','none')
+title(ETplot.rough,sprintf('%s\n%s trial %d',dataName{:}),'Position', [round(max(Data.smooth(:,2)),1)/2 1.25 0], 'FontSize', 16, 'Interpreter','none') % Add a title

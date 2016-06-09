@@ -1,6 +1,6 @@
 function fixesList = func_writeFixesList(smoothIn, roughIn, fixParams)
 
-% roughIn   = [time1 time2 XL YL XR YR]
+% roughIn   = [time1 time2 XL XR YL YR]
 % smoothIn  = [time1 time2 X Y ValidFixes10 BelowVeloc10 Saccs10 Vel InterpolatingFlag]
 
 % FixesList = [FixStartIt FixEndIt FixDur FixAvgX FixAvgY FixAvgVar SmoothPursuit FixStartTime FixEndTime]
@@ -38,8 +38,8 @@ function [average, data] = quick_average(XorY)
     % Small nested function to generate X or Y data (with interpolated
     % substitutions if needed) and the means
 
-    if XorY == 1; RCol = [3 5]; SCol = 3; % X axis = 1
-    else RCol = [4 6]; SCol = 4; end      % Y axis = 2
+    if XorY == 1; RCol = [3:4]; SCol = 3; % X axis = 1
+    else RCol = [5:6]; SCol = 4; end      % Y axis = 2
 
     data = mean(roughIn(fixesList(fix_n,1):fixesList(fix_n,2)-1, RCol),2); % Put the rough data in the data variable
     ind = find(smoothIn(fixesList(fix_n,1):fixesList(fix_n,2)-1, 9)==1);   % Find any instances of interpolated data

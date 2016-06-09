@@ -1,20 +1,20 @@
 function plotHandle = func_plotElements(plotHandle, elementInfo, Data, params)
 
 switch elementInfo{1}
-    case 'rough'
-        plot(plotHandle, Data.rough(:,2), Data.rough(:,3),'or',...
-            Data.rough(:,2), Data.rough(:,4),'ob',...
-            Data.rough(:,2), Data.rough(:,5),'xr',...
+    case 'rough' % Element for rough data 
+        plot(plotHandle, Data.rough(:,2), Data.rough(:,3),'or',...  % Plot the rough data
+            Data.rough(:,2), Data.rough(:,4),'xr',...
+            Data.rough(:,2), Data.rough(:,5),'ob',...
             Data.rough(:,2), Data.rough(:,5),'xb')
         
-        set(plotHandle, params.plot{:},...
-            'YLim', [0 1],...
-            'XAxisLocation', 'top')
+        set(plotHandle, params.plot{:},... % Adjust plot paramaters based on pre-defined defaults
+            'YLim', [0 1],...              % Change limits of Y axis
+            'XAxisLocation', 'top')        % Move X axis to top of plot
         
-        plotHandle.YRuler.Visible = 'off';
-        addLegend
+        plotHandle.YRuler.Visible = 'off'; % Hide the Y axis line
+        addLegend                          % Add the legend
         
-    case 'smooth'
+    case 'smooth' % Element for smooth data
         plot(plotHandle, Data.smooth(:,2), Data.smooth(:,3)./params.ScreenResolution(1), 'r',...
                          Data.smooth(:,2), Data.smooth(:,4)./params.ScreenResolution(2), 'b');
         

@@ -28,7 +28,7 @@ for saccade_n = 1:numel(saccadeStart)
     %% Check if there is a substantial dinocular disparity (binocDisparityCrit)
     % Get the rough data from sample at the start of the saccade and the previous two samples
     % and find the binocular disparity between the samples for the L and R eyes
-    XYRoughDiff = [roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 3) - roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 5), roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 4) - roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 6)];
+    XYRoughDiff = [roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 3) - roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 4), roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 5) - roughData(saccadeStart(saccade_n)-2:saccadeStart(saccade_n), 6)];
     % If any falls above the MaxBinDispThresh (for max values) or below -MaxBinDispThresh (for min values) mark in column 12
     smoothData(saccadeStart(saccade_n),12) = max(XYRoughDiff(:,1))>fixParams.MaxBinDispThresh || min(XYRoughDiff(:,1))<-fixParams.MaxBinDispThresh || max(XYRoughDiff(:,2))>fixParams.MaxBinDispThresh || min(XYRoughDiff(:,2))<-fixParams.MaxBinDispThresh;
         
