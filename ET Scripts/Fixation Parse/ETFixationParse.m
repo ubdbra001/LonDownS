@@ -9,6 +9,7 @@ dataParDir      = '/Volumes/ADDS/Dan/Exported ET';                  % Dir for da
 % Dir for data out
 taskSelectstr   = 'Which task would you like to process?';          % String for task selection box
 dataSelectstr   = 'Which participants would you like to process?';  % Sring for participant selection box
+displayPlotstr  = 'Would you like to display the output graphs?';   % String for output display selection
 oldFontSize_t   = get(0, 'DefaultUicontrolFontSize');               % Get default font size for UI elements
 marker_fname_t  = 'event_markers.txt';                              % Set filename for event markers
 
@@ -51,6 +52,15 @@ files = dir('*.mat');
 
 selectedParticipants = {files(p_ind).name};
 
+button = questdlg(displayPlotstr, 'Display?');
+
+switch button
+    case{'Yes', 'No'}
+        dispFlag = strcmp(button, 'Yes');
+    case 'Cancel'
+        error 'Script cancelled'
+end
+
 set(0, 'DefaultUicontrolFontSize', oldFontSize_t);                         % Set UI font size back to default
 
 %% Start analysis loop
@@ -65,16 +75,22 @@ for participant_n = 1:numel(selectedParticipants) % Loop through each selected p
     
     for trial_n = 1:trials % Start loop for each trial
         
-        dataDetails = {pName, folders(t_ind).name,trial_n};
-
+        dataDetails = {pName, folders(t_ind).name, trial_n};
+        
         dataOut.(pName){trial_n}.rough  = func_dataResample(dataIn.(pName){trial_n}, fixParams); % Resample data so it is at 60Hz
-        dataOut.(pName){trial_n}.smooth = func_dataSmooth(dataOut.(pName){trial_n}.rough);       % Run smoothing function on rough data
-        % Run fixation filter on the data
-        [dataOut.(pName){trial_n}.smooth, dataOut.(pName){trial_n}.fixList_init, dataOut.(pName){trial_n}.fixList_clean] = func_fixationFilter(dataOut.(pName){trial_n}.rough, dataOut.(pName){trial_n}.smooth, fixParams);
-
-        func_plotData(dataOut.(pName){trial_n}, fixParams, dataDetails); % Display results in figure
-        waitfor(gcf); % Do not proceed until the figure is closed
-       
+        if ~isempty(dataOut.(pName){trial_n}.rough)
+            dataOut.(pName){trial_n}.smooth = func_dataSmooth(dataOut.(pName){trial_n}.rough);       % Run smoothing function on rough data
+            % Run fixation filter on the data
+            [dataOut.(pName){trial_n}.smooth, dataOut.(pName){trial_n}.fixList_init, dataOut.(pName){trial_n}.fixList_clean] = func_fixationFilter(dataOut.(pName){trial_n}.rough, dataOut.(pName){trial_n}.smooth, fixParams);
+            if dispFlag
+                func_plotData(dataOut.(pName){trial_n}, fixParams, dataDetails); % Display results in figure
+                if ~exist(pName, 'dir')
+                    mkdir(pName);
+                end
+                saveas(gcf, sprintf('%s/%s - %s trial %d.fig',pName, dataDetails{:}))
+                waitfor(gcf); % Do not proceed until the figure is closed
+            end
+        end
     end
 
 end
