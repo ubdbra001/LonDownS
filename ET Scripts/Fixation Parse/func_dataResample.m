@@ -1,7 +1,12 @@
 function dataOut = func_dataResample(dataIn, fixParams)
 
 samplePoints  = 0:1/fixParams.SamplingFrequency:fixParams.TrialLength-1/fixParams.SamplingFrequency; % Calculate the number of sample points in the resampled data
-resampledData = interp1(dataIn(:,2),dataIn(:,3:6), samplePoints, 'pchip');                           % Interpolate the data
+try
+    resampledData = interp1(dataIn(:,2),dataIn(:,3:6), samplePoints, 'pchip');                           % Interpolate the data
+catch
+    dataOut = [];
+    return
+end
 
 for sample_n = 1:size(resampledData,1) % Run through the data to find samples where it has filled in missing vales
     sample_before = find(dataIn(:,2) <= samplePoints(sample_n),1,'last');
