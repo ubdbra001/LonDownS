@@ -5,7 +5,7 @@ switch elementInfo{1}
         plot(plotHandle, Data.rough(:,2), Data.rough(:,3),'or',...  % Plot the rough data
             Data.rough(:,2), Data.rough(:,4),'xr',...
             Data.rough(:,2), Data.rough(:,5),'ob',...
-            Data.rough(:,2), Data.rough(:,5),'xb')
+            Data.rough(:,2), Data.rough(:,6),'xb')
         
         set(plotHandle, params.plot{:},... % Adjust plot paramaters based on pre-defined defaults
             'YLim', [0 1],...              % Change limits of Y axis
