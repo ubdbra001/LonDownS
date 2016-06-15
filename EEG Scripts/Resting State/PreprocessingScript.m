@@ -11,7 +11,17 @@ path  = uigetdir('','Select main data folder');                            % Ask
 if path == 0; error('Path not selected'); end                              % Throw error if no path selected
 
 cd(path)                                                                   % Change to main data folder
-files_t = dir(folder_search_str);                                          % Get all the ADDS files available
-folders = files_t([files_t.isdir]);                                        % Select only the directories
+files = dir(file_search_str);                                              % Get all the ADDS files available
 
+for file_n = 1:length(files)                                               % Run through each file
+    EEG = pop_readegi(files(file_n).name, [],[],'auto');                   % Load file
+    
+    events.ind      = [EEG.event(strcmp({EEG.event.type}, 'MOVI')).urevent];
+    events.start    = EEG.times([EEG.event(strcmp({EEG.event.type}, 'MOVI')).latency]); % Find the times for 
+    events.end      = EEG.times([EEG.event(strcmp({EEG.event.type}, 'MOVX')).latency]);
+    events.length   = events.end - events.start;
+    
 
+    
+    
+end
