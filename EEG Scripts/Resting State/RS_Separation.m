@@ -1,17 +1,15 @@
-%% Pre-processing script for Resting state data
+%% Separation script for Resting state data
 
-orig_path = fileparts(mfilename('fullpath'));                              % Record folder the script was run from
-addpath(orig_path)                                                         % Add that folder to path
-cd(orig_path)                                                              % Change to that folder for creation of output file
+scriptPath = strsplit(fileparts(mfilename('fullpath')), filesep);
+addpath(fullfile(scriptPath{:}));
+addpath(fullfile(scriptPath{1:end-1}))
 
-res = which('eeglab.m');
-addpath(genpath([res(1:end-length('eeglab.m')) 'functions']))
+addEEGLAB;
 
-path  = uigetdir('','Select main data folder');                            % Ask participant to select main data folder
+path = uigetdir('','Select main data folder');                             % Ask participant to select main data folder
 if path == 0; error('Path not selected'); end                              % Throw error if no path selected
 
-file_search_str   = '*.RAW';                                               % Set file search string
-savepath_str = sprintf('%s/RS/%%s/', path);
+file_search_str = '*.RAW';                                                 % Set file search string
 
 cd(path)                                                                   % Change to main data folder
 files = dir(file_search_str);                                              % Get all the ADDS files available
@@ -38,7 +36,7 @@ for file_n = 70:length(files)                                               % Ru
         else
             EEG.condition = 'Non-Social Stim';
         end
-        EEG = pop_saveset(EEG, 'filename', EEG.setname, 'filepath', sprintf(savepath_str, EEG.condition));
+        EEG = pop_saveset(EEG, 'filename', EEG.setname, 'filepath', fullfile(path, 'RS', EEG.condition));
         EEG = ALLEEG;
     end
         
