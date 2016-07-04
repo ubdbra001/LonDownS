@@ -10,20 +10,26 @@ mainPath  = uigetdir('','Select main data folder');                        % Ask
 if mainPath == 0; error('Path not selected'); end                          % Throw error if no path selected
 
 folder_search_str   = '*Stim';                                             % Set folder search string
+file_search_str     = 'ADDS*.set';
 
 % Set pre-processing parameters
-params = struct('outputFolders', {'Interpolated', 'Epoched'},...           % Output folders
-                'epochLength', 2,...                                       % Epoch length in seconds
-                'hiCutOff', 0.1,...                                        % High-pass cut-off
-                'lowCutOff', 30,...                                        % Low-pass cut-off
-                'montageFile', 'GSN-HydroCel-128.sfp');                                          
+params = struct('outputFolders', {'Interpolated', 'Epoched'},...           Output folders
+                'epochLength', 2,...                                       Epoch length in seconds
+                'hiCutOff', 0.1,...                                        High-pass cut-off
+                'lowCutOff', 30,...                                        Low-pass cut-off
+                'montageFile', 'GSN-HydroCel-128.sfp',...                  Montage file
+                'earElectrodes', [],...                                    Ear electrode numbers
+                'VEOGElectrodes', [126 127],...                            Electrodes for Vertical EOG
+                'HEOGElectrodes', [125 128],...                            Electrodes for Horizontal EOG
+                'VEOGCutoff', 70,...                                       
+                'HEOGCutoff', 40);
 
 cd(mainPath)                                                               % Change to main data folder
-folders = dir(file_search_str);                                            % Get the different stimulus types available
+folders = dir(folder_search_str);                                          % Get the different stimulus types available
 
 for folder_n = 1:length(folders)                                           % Run through each folder
     cd(fullfile(mainPath, folders(folder_n).name))                         % Change to that folder
-    files = dir('ADDS*.set');                                              % Get all .set files in that folder
+    files = dir(file_search_str);                                          % Get all .set files in that folder
     for file_n = 1:length(files)                                           % Run through each file
         EEG = pop_loadset('filename', files(file_n).name);                 % Load the data for the file
         if EEG.srate > 500                                                 % Resample to 500 Hz if original sample rate is greater
@@ -45,7 +51,6 @@ for folder_n = 1:length(folders)                                           % Run
 %           - Add phantom events located in the centre of each epoch
 
 %         Re-reference to average ref
-%           - Why here?
     end
     
 end
