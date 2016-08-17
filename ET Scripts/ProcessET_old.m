@@ -156,7 +156,7 @@ for folder_n = 1:size(folders,1)                                           % Loo
             if exist('fid', 'var'); fprintf(fid,[dataToWrite_t '\n']); end % Write data to csv file
         end % foundEvent_n
         if any(ismember(analysesToUse.analysis, 'export'))                 % If export option selected
-            ouputFile_t = sprintf('%s/%s', eventOutputDir_t, p_name_t);    % Generate output path (including filename)
+            ouputFile_t = fullfile(eventOutputDir_t, p_name_t);    % Generate output path (including filename)
             save(ouputFile_t, '-struct', 's', p_name_t);                   % Save the individual participant data from the data structure
         end
     end % eventsToFind_n

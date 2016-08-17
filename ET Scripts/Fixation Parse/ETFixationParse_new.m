@@ -5,7 +5,7 @@
 %% Will proabbly need to define some things here
 orig_path       = fileparts(mfilename('fullpath'));                 % Record folder the script was run from
 addpath(cd(cd('..')))                                               % Add parent path so script can find event_markers file
-dataParDir      = '/Volumes/ADDS/Dan/Exported ET';                  % Dir for data in
+dataParDir      = '/Volumes/ADDS/Dan/Exported ET (new)';            % Dir for data in
 % Dir for data out
 taskSelectstr   = 'Which task would you like to process?';          % String for task selection box
 dataSelectstr   = 'Which participants would you like to process?';  % Sring for participant selection box
@@ -15,7 +15,7 @@ marker_fname_t  = 'event_markers.txt';                              % Set filena
 
 
 %% Fixation Parameters
-fixParams = struct('SamplingFrequency', 60,...     % Sampling frequency in Hz
+fixParams = struct('SamplingFrequency', 120,...     % Sampling frequency in Hz
                    'VelocityThreshold', 35,...     % In deg/sec
                    'MinFix', 0.1,...               % Minimum fixation time in Secs
                    'MaxVariance', 30,...           % Maximum permissible variance within a fixation, in pixels per second - this is equivalent to 0.96 deg per sec
@@ -43,7 +43,7 @@ set(0, 'DefaultUicontrolFontSize', 14);                                    % Set
 [t_ind, ~] = listdlg('ListString', {folders.name}, 'SelectionMode', 'single', 'PromptString', taskSelectstr, 'ListSize', [400 300]);
 dataAnalysisDir = sprintf('%s/%s', dataParDir, folders(t_ind).name);
 [~, e_ind] = ismember(folders(t_ind).name, events.Name);
-fixParams.TrialLength = events.Event_length(e_ind)/1000;
+fixParams.TrialLength = 8; %events.Event_length(e_ind)/1000;
 
 cd(dataAnalysisDir);
 
@@ -65,25 +65,26 @@ set(0, 'DefaultUicontrolFontSize', oldFontSize_t);                         % Set
 
 %% Start analysis loop
 
-[dataIn, dataOut]  = deal(struct());
+[dataLoad, data]  = deal(struct());
 
 for participant_n = 1:numel(selectedParticipants) % Loop through each selected participant
 
     pName   = selectedParticipants{participant_n}(1:end-4); % Generate variable name 
-    dataIn  = load(selectedParticipants{participant_n});    % Load .mat data
-    trials  = numel(dataIn.(pName)); % Get the number of trials
+    dataLoad  = load(selectedParticipants{participant_n});    % Load .mat data
+    trials  = numel(dataLoad.(pName)); % Get the number of trials
     
     for trial_n = 1:trials % Start loop for each trial
         
+        data.(pName){trial_n}.rough = dataLoad.(pName){trial_n};
         dataDetails = {pName, folders(t_ind).name, trial_n};
         
-        dataOut.(pName){trial_n}.rough  = func_dataResample(dataIn.(pName){trial_n}, fixParams); % Resample data so it is at 60Hz
-        if ~isempty(dataOut.(pName){trial_n}.rough)
-            dataOut.(pName){trial_n}.smooth = func_dataSmooth(dataOut.(pName){trial_n}.rough);       % Run smoothing function on rough data
+        %dataOut.(pName){trial_n}.rough  = func_dataResample(dataIn.(pName){trial_n}, fixParams); % Resample data so it is at 60Hz
+        if ~isempty(data.(pName){trial_n}.rough)
+            data.(pName){trial_n}.smooth = func_dataSmooth(data.(pName){trial_n}.rough);       % Run smoothing function on rough data
             % Run fixation filter on the data
-            [dataOut.(pName){trial_n}.smooth, dataOut.(pName){trial_n}.fixList_init, dataOut.(pName){trial_n}.fixList_clean] = func_fixationFilter(dataOut.(pName){trial_n}.rough, dataOut.(pName){trial_n}.smooth, fixParams);
+            [data.(pName){trial_n}.smooth, data.(pName){trial_n}.fixList_init, data.(pName){trial_n}.fixList_clean] = func_fixationFilter(data.(pName){trial_n}.rough, data.(pName){trial_n}.smooth, fixParams);
             if dispFlag
-                func_plotData(dataOut.(pName){trial_n}, fixParams, dataDetails); % Display results in figure
+                func_plotData(data.(pName){trial_n}, fixParams, dataDetails); % Display results in figure
                 if ~exist(pName, 'dir')
                     mkdir(pName);
                 end

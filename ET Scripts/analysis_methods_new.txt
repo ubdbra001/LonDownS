@@ -1,0 +1,5 @@
+Name, analysis
+Marker info, marker_info
+Looking time per section, section
+Time window - (Not Working!), window
+Export data, export
