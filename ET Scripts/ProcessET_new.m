@@ -6,16 +6,16 @@ orig_path = fileparts(mfilename('fullpath'));                              % Rec
 addpath(orig_path)                                                         % Add that folder to path
 cd(orig_path)                                                              % Change to that folder for creation of output file
 
-folder_search_str = '900*';                                               % Set folder search string
-file_search_str   = '*Buffer.mat';                                      % Set file search string
+folder_search_str = '900*';                                                % Set folder search string
+file_search_str   = '*Buffer.mat';                                         % Set file search string
 outputDir         = '/Volumes/ADDS/Dan/Exported ET (New)';                 % Set parent data export Directory
 marker_fname_t    = 'event_markers_new.txt';                               % Set filename for event markers
-analys_fname_t    = 'analysis_methods_new.txt';                                % Set filename for analysis methods
+analys_fname_t    = 'analysis_methods_new.txt';                            % Set filename for analysis methods
 eventDlgStr_t     = 'Please select which events you want to look for:';    % Event list dialogue string
 anlysDlgStr_t     = 'Please select which analyses you want to use:';       % Analysis list dialogue string
 timeWinStr_t      = 'Please select the time window length in ms:';         % Time window input dialogue string
 defaultTimeWin_t  = {'250'};                                               % Default time window (ms)
-selectOp_t        = 'single';                                            % Default setting for list dialogue selection
+selectOp_t        = 'single';                                              % Default setting for list dialogue selection
 oldFontSize_t     = get(0, 'DefaultUicontrolFontSize');                    % Get default font size for UI elements
 varsToClear       = {'*_t', '*_n'};                                        % Variable to remove during tidying
 [timeWindowWidth, timeWindows] = deal([]);
