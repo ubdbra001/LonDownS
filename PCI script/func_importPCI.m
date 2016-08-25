@@ -1,4 +1,4 @@
-function framebyframeexport = func_importPCI(filename, startRow, endRow)
+function framebyframeexport = func_importPCI(filename,codingType, startRow, endRow)
 %IMPORTFILE Import numeric data from a text file as a matrix.
 %   FRAMEBYFRAMEEXPORT = IMPORTFILE(FILENAME) Reads data from text file
 %   FILENAME for the default selection.
@@ -15,33 +15,65 @@ function framebyframeexport = func_importPCI(filename, startRow, endRow)
 
 %% Initialize variables.
 delimiter = ',';
-if nargin<=2
+if nargin<=3
     startRow = 2;
     endRow = inf;
 end
 
-%% Format string for each line of text:
-%   column1: double (%f)
-%	column2: double (%f)
-%   column3: double (%f)
-%	column4: double (%f)
-%   column5: text (%s)
-%	column6: text (%s)
-%   column7: text (%s)
-%	column8: double (%f)
-%   column9: double (%f)
-%	column10: double (%f)
-%   column11: text (%s)
-%	column12: text (%s)
-%   column13: text (%s)
-%	column14: double (%f)
-%   column15: double (%f)
-%	column16: double (%f)
-%   column17: text (%s)
-%	column18: text (%s)
-% For more information, see the TEXTSCAN documentation.
-formatSpec = '%f%f%f%f%s%s%s%f%f%f%s%s%s%f%f%f%s%s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%[^\n\r]';
 
+% For more information, see the TEXTSCAN documentation.
+
+switch codingType
+    case 1
+        % Format string for each line of text:
+        %   column1: double (%f)
+        %	column2: double (%f)
+        %   column3: double (%f)
+        %	column4: double (%f)
+        %   column5: text (%s)
+        %	column6: text (%s)
+        %   column7: text (%s)
+        %	column8: double (%f)
+        %   column9: double (%f)
+        %	column10: double (%f)
+        %   column11: text (%s)
+        %	column12: text (%s)
+        %   column13: text (%s)
+        %	column14: double (%f)
+        %   column15: double (%f)
+        %	column16: double (%f)
+        %   column17: text (%s)
+        %	column18: text (%s)
+        
+        formatSpec = '%f%f%f%f%s%s%s%f%f%f%s%s%s%f%f%f%s%s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%[^\n\r]';
+        varNames = {'time','babyobjordinal','babyobjonset','babyobjoffset','babyobjobj1','babyobjobj2','babyobjobj3','parentobjordinal','parentobjonset','parentobjoffset','parentobjobj1','parentobjobj2','parentobjobj3','actionsordinal','actionsonset','actionsoffset','actionsbaby','actionsparent'};
+    case 2
+        % Format string for each line of text:
+        %   column1: double (%f)
+        %	column2: double (%f)
+        %   column3: double (%f)
+        %	column4: double (%f)
+        %   column5: text (%s)
+        %	column6: text (%s)
+        %   column7: text (%s)
+        %	column8: double (%f)
+        %   column9: double (%f)
+        %	column10: double (%f)
+        %   column11: text (%s)
+        %	column12: double (%f)
+        %   column13: double (%f)
+        %	column14: double (%f)
+        %   column15: text (%s)
+        %	column16: text (%s)
+        %   column17: text (%s)
+        %	column18: double (%f)
+        %   column19: double (%f)
+        %	column20: double (%f)
+        %   column21: text (%s)
+        
+        formatSpec = '%f%f%f%f%s%s%s%f%f%f%s%f%f%f%s%s%s%f%f%f%s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%[^\n\r]';
+        varNames = {'time','babyobjordinal','babyobjonset','babyobjoffset','babyobjobj1','babyobjobj2','babyobjobj3','babyactionsordinal','babyactionsonset','babyactionsoffset','babyactionsbaby','parentobjordinal','parentobjonset','parentobjoffset','parentobjobj1','parentobjobj2','parentobjobj3','parentactionsordinal','parentactionsonset','parentactionsoffset','parentactionscode01'};
+end
 %% Open the text file.
 fileID = fopen(filename,'r');
 
@@ -68,5 +100,5 @@ fclose(fileID);
 % script.
 
 %% Create output variable
-framebyframeexport = table(dataArray{1:end-1}, 'VariableNames', {'time','babyobjordinal','babyobjonset','babyobjoffset','babyobjobj1','babyobjobj2','babyobjobj3','parentobjordinal','parentobjonset','parentobjoffset','parentobjobj1','parentobjobj2','parentobjobj3','actionsordinal','actionsonset','actionsoffset','actionsbaby','actionsparent'});
+framebyframeexport = table(dataArray{1:end-1}, 'VariableNames', varNames);
 
