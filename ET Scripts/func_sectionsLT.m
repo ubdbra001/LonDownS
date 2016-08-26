@@ -6,6 +6,8 @@ eyeXY = [nanmean(LXRX_LYRY(:,3:4),2)'; nanmean(LXRX_LYRY(:,5:6),2)']';     % Cal
 
 TotLook = sum(~isnan(eyeXY(:,1)) & ~isnan(eyeXY(:,2)));                    % Calculate the number of samples where the participant was looking at the screen
 
+AoIs = ETAnalysis_constants.(event).AoIs;
+
 switch event
     case 'location'                                                        % Calculate the number of samples where the participant was looking at:
         output{1} = sum(eyeXY(:,1)<0.5 & eyeXY(:,2)<0.5);                  % The top left of the screen

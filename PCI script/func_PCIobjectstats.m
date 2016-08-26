@@ -4,7 +4,7 @@ function tableOut = func_PCIobjectstats(dataIn, colNums)
 headers = {'Object','totalTime', 'meanTime', 'sdTime', 'transitions'}; % Headers for output table
 
 objects = unique(dataIn{:,colNums}); % Find the unique objects in the data
-objects(ismember(objects, '.')) = []; % Remove '.' object from list
+objects(ismember(objects, {'.', ''})) = []; % Remove '.' and '' object from list
 objects = cell2table(objects, 'VariableNames', headers(1)); % Convert to a table
 blkTable =  array2table(nan(height(objects),length(headers(2:end))), 'VariableNames', headers(2:end)); % Generate a blank table
 tableOut = horzcat(objects, blkTable); % Prepare the output table
