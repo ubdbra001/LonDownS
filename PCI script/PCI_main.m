@@ -4,22 +4,25 @@
 filenameFormat = 'PCI*.csv'; % General filename structure of the PCI files
 defaultDir = '/Volumes/ADDS/ADDS DATA All Subjects/Behavioural analyses/PCI/PCI datavyu coding MK RTP/PCI Datavyu export/export Ruby/'; % Initial directory to open for dir select
 addpath(fileparts(mfilename('fullpath')))
-outputHeader = 'Participant ID,Actor,Object,totalTime,meanTime,sdTime,Transitions';
+analysisParams.actor = {'child', 'parent'};
 
 %% Main script
 dataDir = strsplit(uigetdir(defaultDir), filesep);
 cd(strjoin(dataDir, filesep))     % Select data dir and change to it
 files = dir(filenameFormat); % Find all PCI csv files
 
-exportFlag = questdlg('Would you like to export the data?', 'Export data', 'Yes', 'No', 'Yes');
+exportFlag = questdlg('Would you like to export the output?', 'Export data', 'Yes', 'No', 'Yes');
 exportFlag = strcmp(exportFlag, 'Yes');
 if exportFlag
-    [outName, outDir] = uiputfile('*.csv', 'Save output as');
-    outFile = fullfile(outDir, outName);
-    outTable = table();
+    [out.Name, out.Dir] = uiputfile('*.csv', 'Save output as');
+    out.File            = fullfile(out.Dir, out.Name);
+    out.Table           = table();
+
+    out.colName         = func_appendFilename(out.Name,' _collapsed');
+    out.colFile         = fullfile(out.Dir, out.colName);
+    out.colTable        = table();
 end
 
-analysisParams.actor = {'child', 'parent'};
 
 switch dataDir{end}
     case 'actions<baby,parent>'
@@ -27,23 +30,26 @@ switch dataDir{end}
         analysisParams.ObjCols        = {5:7, 11:13};   % The columns of the file that indicate the objects each actor has picked up
     case 'babyactions<>, parentactions<>'
         analysisParams.codeType       = 2;
-        analysisParams.childObjCols   = {5:7, 15:17};   % The columns of the file that indicate the objects each actor has picked up
+        analysisParams.ObjCols        = {5:7, 15:17};   % The columns of the file that indicate the objects each actor has picked up
     otherwise
         error('Folder selected not recognised');
 end
 
 for file_n = 1:length(files)
-    name = strsplit(files(file_n).name, {'.', ' '});
-    p_name = name{2};                                          % Generate participant name
+    p_name = strsplit(files(file_n).name, {'.', ' '});
+    p_name = p_name{2};                                          % Generate participant name
     try
-        PCI.(p_name).raw    = func_importPCI(files(file_n).name, analysisParams.codeType);         % Import data from the files found
-        for actor_n = 1:length(analysisParams.actor)
-            PCI.(p_name).(analysisParams.actor{actor_n})  = func_PCIobjectstats(PCI.(p_name).raw, analysisParams.ObjCols{actor_n});  % Produce stats for objects
+        PCI.(p_name).raw    = func_importPCI(files(file_n).name, analysisParams.codeType);  % Import data from the files found
+        for actor_n = 1:length(analysisParams.actor)                                        % For each actor (in this case: child and parent)  
+            [PCI.(p_name).(analysisParams.actor{actor_n}), allTimes] = func_PCIobjectstats(PCI.(p_name).raw, analysisParams.ObjCols{actor_n});  % Produce stats for objects
             if exportFlag
-                outTable = vertcat(outTable, horzcat(repmat(table({p_name}, {analysisParams.actor{actor_n}}, 'VariableNames', {'Participant_ID', 'Actor'}), height(PCI.(p_name).(analysisParams.actor{actor_n})),1), PCI.(p_name).(analysisParams.actor{actor_n})));
+                % If the export flag is tagged concatenate the table of stats 
+                % produced with the output table 
+                out.Table    = func_genOutput(out.Table, PCI.(p_name).(analysisParams.actor{actor_n}), [{p_name}, analysisParams.actor(actor_n)]);
+                out.colTable = func_genColOutput(out.colTable, PCI.(p_name).(analysisParams.actor{actor_n}), allTimes, [{p_name}, analysisParams.actor(actor_n)]);
             end
         end
-    catch ME
+    catch ME % Error handling
         disp(p_name)
         disp(getReport(ME))
         disp('Moving onto next file');
@@ -51,5 +57,6 @@ for file_n = 1:length(files)
 end
 
 if exportFlag
-    writetable(outTable, outFile, 'FileType', 'text')
+    writetable(out.Table, out.File, 'FileType', 'text')
+    writetable(out.colTable, out.colFile, 'FileType', 'text')
 end

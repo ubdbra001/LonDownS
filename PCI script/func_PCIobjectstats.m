@@ -1,7 +1,8 @@
-function tableOut = func_PCIobjectstats(dataIn, colNums)
+function [tableOut, allObjTimes] = func_PCIobjectstats(dataIn, colNums)
 % FUNC_PCIOBJECTSTATS function to identify unique objects from the PCI data and produce stats about them 
 
 headers = {'Object','totalTime', 'meanTime', 'sdTime', 'transitions'}; % Headers for output table
+allObjTimes = [];
 
 objects = unique(dataIn{:,colNums}); % Find the unique objects in the data
 objects(ismember(objects, {'.', ''})) = []; % Remove '.' and '' object from list
@@ -14,6 +15,7 @@ for object_n = 1:height(objects)
     temp   = diff([0; any(ismember(dataIn{:,colNums}, tableOut.Object(object_n)),2); 0]); % Find where the object appears in the data
     onset  = find(temp == 1);    % Find the onset indicies
     offset = find(temp == -1)-1; % Find the offset indicies
+    allObjTimes = [allObjTimes; dataIn.time(offset) - dataIn.time(onset)];
     
     tableOut.totalTime(object_n)     = sum(dataIn.time(offset) - dataIn.time(onset));           % Calculate the total time with the object in ms
     tableOut.meanTime(object_n)      = round(mean(dataIn.time(offset) - dataIn.time(onset)));   % Calculate the mean time with the object in ms
