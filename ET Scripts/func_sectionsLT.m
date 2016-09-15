@@ -16,7 +16,6 @@ switch event
         output{4} = sum(eyeXY(:,1)>0.5 & eyeXY(:,2)>0.5);                  % The bottom right of the screen
         
     case 'object'
-        load('AoIs.mat')
         for AoI_n = 1:numel(AoIs)
             output{AoI_n} = sum(inpolygon(eyeXY(:,1), eyeXY(:,2), AoIs(AoI_n).x, AoIs(AoI_n).y));
         end

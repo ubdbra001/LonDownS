@@ -60,14 +60,17 @@ for foundEvent_n = 1:length(foundEvents);
     
     clear in
     figure(foundEvent_n); hold on
+    im1 = imread('Cat.png', 'BackgroundColor', [1 1 1]);
     for n = 1:3
+        im(n) = image(unique(stim(n).x), sort(1-unique(stim(n).y)), im1);
+        set(im(n), 'AlphaData', 0.5)
         in(n,:) = inpolygon(eyeXY(:,1), eyeXY(:,2), AoIs(n).x, AoIs(n).y)';
         plot(AoIs(n).x, AoIs(n).y, 'Color', colours(n,:))
         plot(eyeXY(in(n,:),1),eyeXY(in(n,:),2), '+' ,'Color',colours(n,:))
-        mapshow(stim(n).x,(1-stim(n).y), 'Color', colours(n,:))
+        %mapshow(stim(n).x,(1-stim(n).y), 'Color', colours(n,:))
         %plot(eyeXY(~in,1),eyeXY(~in,2),'bo')
     end
-    mapshow(stim(4).x,(1-stim(4).y), 'Color', 'yellow')
+    %mapshow(stim(4).x,(1-stim(4).y), 'Color', 'yellow')
     %axis square
     xlim([0 1])
     ylim(xlim)
