@@ -11,10 +11,10 @@ blkTable = array2table(nan(height(objects),length(headers(2:end))), 'VariableNam
 tableOut = horzcat(objects, blkTable); % Prepare the output table
 
 % Percent of total time holding an object
-times.Tot   = (sum(any(ismember(dataIn{:,colNums{1}}, objects{:,1}), 2))/(height(dataIn)-1))*dataIn.time(end);
+times.Tot   = func_calcTime(any(ismember(dataIn{:,colNums{1}}, objects{:,1}),2), dataIn.time);
 
 % Percent of total time holding multiple objects
-times.Multi = (sum(sum(ismember(dataIn{:,colNums{1}}, objects{:,1}),2)>1)/(height(dataIn)-1))*dataIn.time(end);
+times.Multi = func_calcTime(sum(ismember(dataIn{:,colNums{1}}, objects{:,1}),2)>1, dataIn.time);
 
 for object_n = 1:height(objects)
     
