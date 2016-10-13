@@ -1,7 +1,7 @@
-function dataOut = func_calcTime(dataIn, times)
+function [dataOut, onset, offset] = func_calcTime(dataIn)
 
 temp = diff([0; dataIn; 0]);
 onset = find(temp == 1);
 offset = find(temp == -1)-1;
 
-dataOut = sum(offset - onset);
+dataOut = offset - onset;

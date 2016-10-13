@@ -11,17 +11,15 @@ blkTable = array2table(nan(height(objects),length(headers(2:end))), 'VariableNam
 tableOut = horzcat(objects, blkTable); % Prepare the output table
 
 % Percent of total time holding an object
-times.Tot   = func_calcTime(any(ismember(dataIn{:,colNums{1}}, objects{:,1}),2), dataIn.time);
+times.Tot   = sum(func_calcTime(any(ismember(dataIn{:,colNums{1}}, objects{:,1}),2)))*33;
 
 % Percent of total time holding multiple objects
-times.Multi = func_calcTime(sum(ismember(dataIn{:,colNums{1}}, objects{:,1}),2)>1, dataIn.time);
+times.Multi = sum(func_calcTime(sum(ismember(dataIn{:,colNums{1}}, objects{:,1}),2)>1))*33;
 
 for object_n = 1:height(objects)
     
-    temp   = diff([0; any(ismember(dataIn{:,colNums{1}}, tableOut.Object(object_n)),2); 0]); % Find where the object appears in the data
-    onset  = find(temp == 1);    % Find the onset indicies
-    offset = find(temp == -1)-1; % Find the offset indicies
-    times.allObj = [times.allObj; dataIn.time(offset) - dataIn.time(onset)];
+    [objTimes, onset, offset] = func_calcTime(any(ismember(dataIn{:,colNums{1}}, tableOut.Object(object_n)),2)); % Find where the object appears in the data
+    times.allObj = [times.allObj; objTimes*33];
     
     objCount = 0;
     
@@ -33,9 +31,9 @@ for object_n = 1:height(objects)
         end
     end
     
-    tableOut.totalTime(object_n)     = sum(dataIn.time(offset) - dataIn.time(onset));           % Calculate the total time with the object in ms
-    tableOut.meanTime(object_n)      = round(mean(dataIn.time(offset) - dataIn.time(onset)));   % Calculate the mean time with the object in ms
-    tableOut.sdTime(object_n)        = std(dataIn.time(offset) - dataIn.time(onset));           % Calculate the SD time with the object in ms
-    tableOut.transitions(object_n)   = length(onset);                                           % Calculate the number of times object picked up
+    tableOut.totalTime(object_n)     = sum(objTimes);           % Calculate the total time with the object in ms
+    tableOut.meanTime(object_n)      = round(mean(objTimes));   % Calculate the mean time with the object in ms
+    tableOut.sdTime(object_n)        = std(objTimes);           % Calculate the SD time with the object in ms
+    tableOut.transitions(object_n)   = length(onset);           % Calculate the number of times object picked up
     tableOut.starts(object_n)        = objCount;
 end
