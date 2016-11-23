@@ -1,2 +1,6 @@
-res = which('eeglab.m');
-addpath(genpath([res(1:end-length('eeglab.m')) 'functions']))
+%% Add EEGLAB directories to path
+function addEEGLAB
+
+eeglabDir = fileparts(which('eeglab.m'));
+addpath(genpath(fullfile(eeglabDir, 'functions')));
+addpath(genpath(fullfile(eeglabDir, 'plugins')), '-end');

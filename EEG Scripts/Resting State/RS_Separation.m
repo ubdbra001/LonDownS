@@ -14,7 +14,7 @@ file_search_str = '*.RAW';                                                 % Set
 cd(path)                                                                   % Change to main data folder
 files = dir(file_search_str);                                              % Get all the ADDS files available
 
-for file_n = 70:length(files)                                               % Run through each file
+for file_n = 1:length(files)                                               % Run through each file
     [EEG, ALLEEG, events] = deal ([]);
     EEG = pop_readegi(files(file_n).name, [],[],'auto');                   % Load file
     EEG.setname = strtok(files(file_n).name,' .');
