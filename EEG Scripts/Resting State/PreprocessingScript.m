@@ -47,27 +47,8 @@ for folder_n = 1:length(folders)                                           % Run
         EEG.includedChans = setdiff(1:EEG.nbchan, EEG.removedChans);       % Remove these from analyses
         
         %% 4 Methods for IDing bad channels - needs work (move into single function?)
-        EEG.deadChans = egiDeadChans(EEG);                                 % Find dead channels
         
-        % - Channels will not record anything, but will still have reference
-        % signal subtracted
-        % - However, the resulting raw signals should have perfect
-        % correlation...
-        % - We know eye-chans 125-128 not included so dead chans should
-        % have perfect correlation with them
-        % - Can test with Guilia's data
-
-        EEG_t = pop_eegfiltnew(EEG, params.hiCutOff, params.lowCutOff, 3300, 0, [], 0); % Bandpass filter (NB: Correct filter order?)
-        %EEG = pop_eegfiltnew(EEG, params.notchLo, params.notchHi, [],1);   % Notch filter at 49-51 Hz
-        
-        % Filters need to be applied before bad chan ID
-        % Could temporarily filter the data to ID the bad chans and then
-        % apply other filters downstream?
-        
-        EEG.chanStats = channel_properties(EEG_t, EEG.includedChans, []);  % Calculate channel stats using FASTER algorithm
-        EEG.badChans  = EEG.includedChans(min_z(EEG.chanStats));           % Determine bad channels from the stats (currently using default settings: 3+ z-scores)
-        
-        clear EEG_t
+        EEG = BadChanID(EEG);
         
         %% 5. Interpolate Bad channels
         
