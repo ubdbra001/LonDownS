@@ -15,15 +15,13 @@ file_search_str     = 'ADDS*.set';
 
 % Set pre-processing parameters
 params = struct('outputFolders', {{'Raw', 'Interpolated', 'ARed'}},...     Data dirs
-                'epochLength',   2,...                                     Epoch length in seconds
                 'hiCutOff',      0.5,...                                   High-pass cut-off
                 'lowCutOff',     47,...                                    Low-pass cut-off
                 'montageFile',   'GSN-HydroCel-128.sfp',...                Montage file
                 'remChans',      [14 17 21 38 43 44 48 49 56,... 
                                   107 113 114 119 120 121],...             Electrodes that are ususally poorly placed
                 'missingChans',  125:128,...                               Electrodes that are missing
-                'VEOGCutoff',    70,...                                    uV cutoff for VEOG
-                'epochWin',      1);%                                      Size of epoch window
+                'VEOGCutoff',    70);%                                     uV cutoff for VEOG
 
 cd(paths.data)                                                             % Change to main data dir
 folders = dir(folder_search_str);                                          % Get the different stimulus types available (in different dirs)
@@ -52,8 +50,9 @@ for folder_n = 1:length(folders)                                           % Run
         
         %% 5. Interpolate Bad channels
         
-%         Bad channel replacement (spherical spline interpolation)
-%           - Use automatic methods?
+        EEG = pop_interp(EEG, EEG.bad_chans, 'spherical');
+        
+        % Perhaps use function from ERPLAB? erplab_interpolateElectrodes
 
         %% Save data and archive original files
         EEG = pop_saveset(EEG,...                                          % Save after interpolation
@@ -72,8 +71,12 @@ for folder_n = 1:length(folders)                                           % Run
         EEG = pop_eegfiltnew(EEG, params.hiCutOff, params.lowCutOff, 3300, 0, [], 0); % Bandpass filter (NB: Correct filter order?)
 
         %% 7. Remove artefacts but save removed portions
-%         Semi - automatic artifact rejection for eye movements, blinks, & movement artifacts
+        
+        
+        
+%       Semi - automatic artifact rejection for eye movements, blinks, & movement artifacts
 %           - Need exact criteria
+%       Sliding window
 
         %EEG.include = setdiff(EEG.include, [params.VEOGChans, params.HEOGChans]); % Remove HEOG & VEOG channels from analyses
         
