@@ -1,4 +1,4 @@
-function EEG = BadChanID(EEG)
+function EEG = func_badChanID(EEG)
 
 params.hiCutOff = 30;
 params.loCutOff = 0.1;
