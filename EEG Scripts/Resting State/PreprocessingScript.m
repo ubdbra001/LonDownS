@@ -46,7 +46,7 @@ for folder_n = 1:length(folders)                                           % Run
         
         %% 4 Methods for IDing bad channels - needs work (move into single function?)
         
-        EEG = BadChanID(EEG);
+        EEG = func_badChanID(EEG);
         
         %% 5. Interpolate Bad channels
         
@@ -71,6 +71,10 @@ for folder_n = 1:length(folders)                                           % Run
         EEG = pop_eegfiltnew(EEG, params.hiCutOff, params.lowCutOff, 3300, 0, [], 0); % Bandpass filter (NB: Correct filter order?)
 
         %% 7. Remove artefacts but save removed portions
+        
+        % Maybe convert this section into seperate function...?
+        
+        EEG = func_continuousRej(EEG);
         
         
         
