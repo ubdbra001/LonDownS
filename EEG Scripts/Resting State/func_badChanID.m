@@ -1,9 +1,6 @@
 function EEG = func_badChanID(EEG)
 
-params.hiCutOff = 30;
-params.loCutOff = 0.1;
-
-EEG.deadChans = egiDeadChans(EEG);                                 % Find dead channels
+%EEG.deadChans = egiDeadChans(EEG);                                 % Find dead channels
 
 % - Channels will not record anything, but will still have reference
 % signal subtracted
@@ -13,9 +10,9 @@ EEG.deadChans = egiDeadChans(EEG);                                 % Find dead c
 % have perfect correlation with them
 % - Can test with Guilia's data
 
-% temporay filter data to remove high frequency noise for easier ID of Bad
+% temporary filter data to remove high frequency noise for easier ID of Bad
 % Channels
-EEG_t = pop_eegfiltnew(EEG, params.hiCutOff, params.loCutOff, 3300, 0, [], 0); % Bandpass filter (NB: Correct filter order?)
+EEG_t = pop_eegfiltnew(EEG, RS_constants.hiCutOff_bc, RS_constants.loCutOff_bc, 3300, 0, [], 0); % Bandpass filter (NB: Correct filter order?)
 
 % Filters need to be applied before bad chan ID
 % Could temporarily filter the data to ID the bad chans and then
