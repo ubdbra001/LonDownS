@@ -1,44 +1,40 @@
 function EEG = func_continuousRej(EEG)
 
+%       Semi - automatic artifact rejection for eye movements, blinks, & movement artifacts
+%           - Need exact criteria
+%       Sliding window
+
+params = RS_constants;
+
 % This finds the bad sections of the continuous data...
-[windRej, chanRej] = basicrap(EEG); % chanArray, ampth, windowms, stepms, firstdet, fcutoff, forder)
+[windRej, chanRej] = basicrap(EEG, EEG.includedChans, params.VEOGCutoff, params.ARwinLength,...
+                              params.ARwinStep, params.firstDet, params.fCutoff, params.fOrder);
 
-% chanArray   - channel index(ices) to look for c.r.a.p.
-% - Use EEG.include?
+colormatRej = repmat(colorseg, size(windRej,1),1); % This looks like it generates the colours to indicate rejections
 
-% ampth       - 1 single value for peak-to-peak threshold within the moving window.
-%               2 values for extreme thresholds within the moving window, e.g [-200 200] or [-150 220]
-% - Need to work out (+- 100 uV?)
-
-% windowms    - moving window width in msec (default 2000 ms)
-% stepms      - moving window step in msec (default 1000 ms)
-% - These can be worked out from infnat ERPs?
-
-% firstdet    - 1 means move the moving-window after detecting the first artifactual channel (faster). 0 means scan all channel
-%               then move the window (slower).
-% - Not sure which to use here? Probably the latter...
-
-% fcutoff     - 2 values for frequency cutoffs. empty means no filtering (default)
-% forder      - 1 value indicating the order (number of points) of the FIR filter to be used. Default 26
-% - Should already be filtered...
-
-colormatrej = repmat(colorseg, size(WinRej,1),1); % This looks like it generates the colours to indicate rejections
-
-matrixrej = [WinRej colormatrej chanrej];
+matrixRej = [windRej colormatRej chanRej]; % Combine the matricies produced
 
 % WinRej      - Rejection limits in frames from beginning of data [start end]
 % Colormatrej - Specifies marking colour [R G B]
 % Chanrej     - Logical vector marking channels for rejection [ 1:nchans, 1
 % = mark, 0 = not mark]
 
-assignin('base', 'WinRej', WinRej) % Do I need this? Looks like it assigns a variable in base stack? Might be useful...
+assignin('base', 'windRej', windRej) % Do I need this? Looks like it assigns a variable in base stack? Might be useful...
 
-fprintf('\n %g segments were marked.\n\n', size(WinRej,1));
+fprintf('\n %g segments were marked.\n\n', size(windRej,1)); % Output for user
 
-commrej = sprintf('%s = eeg_eegrej( %s, WinRej);', inputname(1), inputname(1));
-% call figure
-eegplot(EEG.data, 'winrej', matrixrej, 'srate', EEG.srate,'butlabel','REJECT','command', commrej,'events', EEG.event,'winlength', 50);
-    
+commrej = sprintf('%s = eeg_eegrej( %s, windRej);', inputname(1), inputname(1)); % Generate command for rejecting sections
+
 % Plot the data showing IDed bad sections
+eegplot(EEG.data, 'winrej', matrixRej,...   % Show rejected portions
+                  'srate', EEG.srate,...    % Set sample rate
+                  'butlabel','REJECT',...   % Set button label
+                  'command', commrej,...    % Set command on button push
+                  'events', EEG.event,...   % Display events (needed?)
+                  'winlength', 50);         % Set window length (s) - too long, shortern
+              
+              % May need to add: spacing?
+uiwait(gcf)   % Wait for figure to close
 
-% Store the rejected sections before removal
+% Store the rejected sections before removal - Put in command function
+% above?
