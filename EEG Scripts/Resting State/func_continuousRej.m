@@ -22,7 +22,23 @@ function EEG = func_continuousRej(EEG)
 % forder      - 1 value indicating the order (number of points) of the FIR filter to be used. Default 26
 % - Should already be filtered...
 
+colormatrej = repmat(colorseg, size(WinRej,1),1); % This looks like it generates the colours to indicate rejections
 
+matrixrej = [WinRej colormatrej chanrej];
+
+% WinRej      - Rejection limits in frames from beginning of data [start end]
+% Colormatrej - Specifies marking colour [R G B]
+% Chanrej     - Logical vector marking channels for rejection [ 1:nchans, 1
+% = mark, 0 = not mark]
+
+assignin('base', 'WinRej', WinRej) % Do I need this? Looks like it assigns a variable in base stack? Might be useful...
+
+fprintf('\n %g segments were marked.\n\n', size(WinRej,1));
+
+commrej = sprintf('%s = eeg_eegrej( %s, WinRej);', inputname(1), inputname(1));
+% call figure
+eegplot(EEG.data, 'winrej', matrixrej, 'srate', EEG.srate,'butlabel','REJECT','command', commrej,'events', EEG.event,'winlength', 50);
+    
 % Plot the data showing IDed bad sections
 
 % Store the rejected sections before removal
