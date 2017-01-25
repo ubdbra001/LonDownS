@@ -32,59 +32,35 @@ for folder_n = 1:length(folders)                                           % Run
         EEG.removedChans = [RS_constants.remChans RS_constants.missingChans];% Record poorly placed electrodes
         EEG.includedChans = setdiff(1:EEG.nbchan, EEG.removedChans);       % Remove these from analyses
         
-        %% 4 Methods for IDing bad channels - needs work (move into single function?)
+        %% 4 Methods for IDing bad channels - needs work
         
         EEG = func_badChanID(EEG);
         
         %% 5. Interpolate Bad channels
         
-        EEG = pop_interp(EEG, EEG.bad_chans, 'spherical');
+        % EEG = pop_interp(EEG, EEG.bad_chans, 'spherical');
         
-        % Perhaps use function from ERPLAB to exclude the remChans? erplab_interpolateElectrodes
-
+        EEG = erplab_interpolateElectrodes(EEG, EEG.badChans,...           % Interpolate bad channels ignoring the removed channels
+                                           EEG.removedChans, 'spherical');
+        
         %% Save data and archive original files
-        EEG = pop_saveset(EEG,...                                          % Save after interpolation
-                          'filename', sprintf('%s_%s', EEG.setname, RS_constants.outputFolders{2}),...
-                          'filepath', paths.currDir);
-                      
-        if ~exist(RS_constants.outputFolders{1}, 'dir')                          % Check if raw dir exists and create if not
-            mkdir(paths.currDir, RS_constants.outputFolders{1})
-        end
         
-        % Move raw file to different folder
-        movefile(files(file_n).name, fullfile(RS_constants.outputFolders{1}, files(file_n).name));
+        EEG = func_saveEEG(EEG, paths, files(file_n).name, 2);
         
         %% 6. Filter data
         
         EEG = pop_eegfiltnew(EEG, RS_constants.hiCutOff, RS_constants.lowCutOff, 3300, 0, [], 0); % Bandpass filter (NB: Correct filter order?)
 
-        %% 7. Remove artefacts but save removed portions
-        
-        % Maybe convert this section into seperate function...?
-        
-        EEG = func_continuousRej(EEG);
-        
-        
-        
-%       Semi - automatic artifact rejection for eye movements, blinks, & movement artifacts
-%           - Need exact criteria
-%       Sliding window
+        %% 7. Remove artefacts but save removed portions - needs work
+                
+        EEG = func_continuousRej(EEG); 
 
         %EEG.include = setdiff(EEG.include, [params.VEOGChans, params.HEOGChans]); % Remove HEOG & VEOG channels from analyses
         
         
         %% Save data post artefact rejection and archive interpolated files
         
-        EEG = pop_saveset(EEG,...                                          % Save after interpolation
-                          'filename', sprintf('%s_%s', EEG.setname, RS_constants.outputFolders{3}),...
-                          'filepath', paths.currDir);
-                      
-        if ~exist(RS_constants.outputFolders{1}, 'dir')                          % Check if raw dir exists and create if not
-            mkdir(paths.currDir, RS_constants.outputFolders{2})
-        end
-        
-        % Move raw file to different folder
-        movefile(files(file_n).name, fullfile(RS_constants.outputFolders{2}, files(file_n).name));
+        EEG = func_saveEEG(EEG, paths, files(file_n).name, 3);
     end
     
 end
