@@ -29,29 +29,38 @@ for folder_n = 1:length(folders)                                           % Run
         EEG = pop_chanedit(EEG, 'lookup', RS_constants.montageFile);
         
         %% 3. Update included electrode list to remove poorly placed electrodes
-        EEG.removedChans = [RS_constants.remChans RS_constants.missingChans];% Record poorly placed electrodes
-        EEG.includedChans = setdiff(1:EEG.nbchan, EEG.removedChans);       % Remove these from analyses
         
+        EEG.removedChans = [RS_constants.remChans RS_constants.missChans];% Record poorly placed electrodes
+        EEG.includedChans = setdiff(1:EEG.nbchan, EEG.removedChans);         % Remove these from analyses
+                
         %% 4 Methods for IDing bad channels - needs work
         
         EEG = func_badChanID(EEG);
         
         %% 5. Interpolate Bad channels
         
-        % EEG = pop_interp(EEG, EEG.bad_chans, 'spherical');
+        EEG = pop_interp(EEG, EEG.badChans, 'spherical');
         
-        EEG = erplab_interpolateElectrodes(EEG, EEG.badChans,...           % Interpolate bad channels ignoring the removed channels
-                                           EEG.removedChans, 'spherical');
-        
+%         EEG = erplab_interpolateElectrodes(EEG, EEG.badChans,...           % Interpolate bad channels ignoring the removed channels
+%                                            EEG.removedChans, 'spherical');
+%         
         %% Save data and archive original files
         
         EEG = func_saveEEG(EEG, paths, files(file_n).name, 2);
         
         %% 6. Filter data
         
-        EEG = pop_eegfiltnew(EEG, RS_constants.hiCutOff, RS_constants.lowCutOff, 3300, 0, [], 0); % Bandpass filter (NB: Correct filter order?)
+        EEG = pop_eegfiltnew(EEG, RS_constants.hiCutOff, RS_constants.loCutOff, [], 0, [], 0); % Bandpass filter (NB: Correct filter order?)
 
         %% 7. Remove artefacts but save removed portions - needs work
+        
+        % In order to save as much data as possible this should be set so
+        % that areas where only a few electrodes are affected (need to work
+        % out a threshold for this) they are interpolated rather than
+        % rejected
+        
+        % Less than 10% of inlcuded electrodes (<10)
+        % Maybe < 5% would be better (5-6 electrodes max)
                 
         EEG = func_continuousRej(EEG); 
 
