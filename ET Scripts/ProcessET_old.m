@@ -82,7 +82,7 @@ for folder_n = 1:size(folders,1)                                           % Loo
         if test_t; foundInd(2:2:end) = []; end;                            % If the trial type is test skip every other trial
         
         foundEvents = [allEvents(foundInd, 3:-1:2) cell(size(foundInd))... % Place matching events and times in variable, add blank third column
-            allEvents(foundInd+1, 3:-1:2) cell(size(foundInd))];           % Also place next events (end trial markers) and times into variable, add another blanck column
+            allEvents(foundInd+1, 3:-1:2) cell(size(foundInd))];           % Also place next events (end trial markers) and times into variable, add another blank column
         
         foundEvents(:,7) = cellfun(@(x) x+(eventsToFind.Event_length(eventsToFind_n)*1000),foundEvents(:,2), 'Uni', false); % Calculate actual time of stimulus display
         
@@ -151,6 +151,14 @@ for folder_n = 1:size(folders,1)                                           % Loo
                             else                                           % For all of the other tasks
                                 s.(p_name_t){foundEvent_n} = func_preprocessData(allData(foundEvents{foundEvent_n,3}:foundEvents{foundEvent_n,8},:)); % Just place the data from event into data structure
                             end
+                        case 'anticip'
+                            if foundEvents{foundEvent_n,8} < foundEvents{foundEvent_n,6}
+                                anticip_info_t = func_anticipAG(allData(foundEvents{foundEvent_n,8}:foundEvents{foundEvent_n,6},:));
+                            else
+                                anticip_info_t = repmat({'NaN'},1,3);
+                            end
+
+                            dataToWrite_t  = strjoin([dataToWrite_t, anticip_info_t],','); % Add this to the string for csv export
                     end
             end            
             if exist('fid', 'var'); fprintf(fid,[dataToWrite_t '\n']); end % Write data to csv file

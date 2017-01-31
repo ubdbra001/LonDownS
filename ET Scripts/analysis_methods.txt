@@ -2,4 +2,5 @@ Name, analysis
 Marker info, marker_info
 Looking time per quadrant, quadrant
 Time window, window
+Attention getter anticipation, anticip
 Export data, export

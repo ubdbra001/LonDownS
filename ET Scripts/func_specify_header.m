@@ -1,9 +1,10 @@
 function headerOut = func_specify_header(analyses, windows)
 
-headerOut = {'Participant,Task type,Trial Type,Order,Trial number,Start marker name,Start marker time,Trial length (ms),Samples in trial'};
-eventHeader = {'End marker,Time between Markers (ms),Samples between markers'};
-quadHeader_opt = {'Samples in window' 'Total looking' 'Top Left' 'Top Right' 'Bottom Left' 'Bottom Right'};
-secHeader_opt  =  {'Samples in window' 'Total looking' 'Top Left' 'Top Right' 'Bottom Left' 'Bottom Right'};
+headerOut        = {'Participant,Task type,Trial Type,Order,Trial number,Start marker name,Start marker time,Trial length (ms),Samples in trial'};
+eventHeader      = {'End marker,Time between Markers (ms),Samples between markers'};
+quadHeader_opt   = {'Samples in window' 'Total looking' 'Top Left' 'Top Right' 'Bottom Left' 'Bottom Right'};
+secHeader_opt    = {'Samples in window' 'Total looking' 'Top Left' 'Top Right' 'Bottom Left' 'Bottom Right'};
+anticipHeader    = {'Samples in window' 'Total looking' 'In Centre'};
 
 
 for analysis_n = 1:size(analyses,1)
@@ -19,6 +20,8 @@ for analysis_n = 1:size(analyses,1)
                 timeWinHeader   = sprintf(sprintf(repmat('%s - %%s,', size(quadHeader_opt)), windowTimes{:}), quadHeader_opt{:});
                 headerOut       = strjoin([headerOut {timeWinHeader(1:end-1)}], ',');
             end
+        case 'anticip'
+            headerOut = strjoin([headerOut anticipHeader], ',');
     end
 end
 
