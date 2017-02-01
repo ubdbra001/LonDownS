@@ -155,7 +155,7 @@ for folder_n = 1:size(folders,1)                                           % Loo
                             if foundEvents{foundEvent_n,8} < foundEvents{foundEvent_n,6}
                                 anticip_info_t = func_anticipAG(allData(foundEvents{foundEvent_n,8}:foundEvents{foundEvent_n,6},:));
                             else
-                                anticip_info_t = repmat({'NaN'},1,3);
+                                anticip_info_t = repmat({'NaN'},1,4);
                             end
 
                             dataToWrite_t  = strjoin([dataToWrite_t, anticip_info_t],','); % Add this to the string for csv export

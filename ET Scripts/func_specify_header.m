@@ -4,7 +4,7 @@ headerOut        = {'Participant,Task type,Trial Type,Order,Trial number,Start m
 eventHeader      = {'End marker,Time between Markers (ms),Samples between markers'};
 quadHeader_opt   = {'Samples in window' 'Total looking' 'Top Left' 'Top Right' 'Bottom Left' 'Bottom Right'};
 secHeader_opt    = {'Samples in window' 'Total looking' 'Top Left' 'Top Right' 'Bottom Left' 'Bottom Right'};
-anticipHeader    = {'Samples in window' 'Total looking' 'In Centre'};
+anticipHeader    = {'Blank screen length (ms)' 'Samples during blank screen' 'Total looking' 'In Centre'};
 
 
 for analysis_n = 1:size(analyses,1)
