@@ -2,27 +2,27 @@
 % V1.00 - 10/05/16
 % Dan Brady
 
-orig_path = fileparts(mfilename('fullpath'));                              % Record folder the script was run from
-addpath(orig_path)                                                         % Add that folder to path
-cd(orig_path)                                                              % Change to that folder for creation of output file
+orig_path = fileparts(mfilename('fullpath'));               % Record folder the script was run from
+addpath(orig_path)                                          % Add that folder to path
+cd(orig_path)                                               % Change to that folder for creation of output file
 
-folder_search_str = 'ADDS*';                                               % Set folder search string
-file_search_str   = '*Buffer_T1.mat';                                      % Set file search string
-outputDir         = '/Volumes/ADDS/Dan/Exported ET';                       % Set parent data export Directory
-marker_fname_t    = 'event_markers.txt';                                   % Set filename for event markers
-analys_fname_t    = 'analysis_methods.txt';                                % Set filename for analysis methods
-eventDlgStr_t     = 'Please select which events you want to look for:';    % Event list dialogue string
-anlysDlgStr_t     = 'Please select which analyses you want to use:';       % Analysis list dialogue string
-timeWinStr_t      = 'Please select the time window length in ms:';         % Time window input dialogue string
-defaultTimeWin_t  = {'250'};                                               % Default time window (ms)
-selectOp_t        = 'multiple';                                            % Default setting for list dialogue selection
-oldFontSize_t     = get(0, 'DefaultUicontrolFontSize');                    % Get default font size for UI elements
-varsToClear       = {'*_t', '*_n'};                                        % Variable to remove during tidying
+folder_search_str = const_ETold.folder_search_str;          % Set folder search string
+file_search_str   = const_ETold.file_search_str;            % Set file search string
+outputDir         = const_ETold.outputDir;                  % Set parent data export Directory
+marker_fname_t    = const_ETold.markerFname;                % Set filename for event markers
+analys_fname_t    = const_ETold.analysFname;                % Set filename for analysis methods
+eventDlgStr_t     = const_ETold.eventDlgStr;                % Event list dialogue string
+anlysDlgStr_t     = const_ETold.anlysDlgStr;                % Analysis list dialogue string
+timeWinStr_t      = const_ETold.timeWinStr;                 % Time window input dialogue string
+defaultTimeWin_t  = const_ETold.defaultTimeWin;             % Default time window (ms)
+selectOp_t        = const_ETold.selectOp;                   % Default setting for list dialogue selection
+oldFontSize_t     = get(0, 'DefaultUicontrolFontSize');     % Get default font size for UI elements
+varsToClear       = {'*_t', '*_n'};                         % Variable to remove during tidying
 [timeWindowWidth, timeWindows] = deal([]);
 
 set(0, 'DefaultUicontrolFontSize', 14);                                    % Set UI font size to 14 for better readability
 analysesToUse = func_read_options(analys_fname_t,anlysDlgStr_t,selectOp_t);% Allow user to select analyses to use
-if any(ismember(analysesToUse.analysis, 'window'))                     % If the time window analysis was selected
+if any(ismember(analysesToUse.analysis, 'window'))                         % If the time window analysis was selected
     timeWindowWidth = inputdlg(timeWinStr_t,'Time window',1,defaultTimeWin_t);  % Allow user to select time window to be used
     if isempty(timeWindowWidth); error('Nothing selected'); end            % If no time window entered throw error
     timeWindowWidth = str2double(timeWindowWidth{:});                      % Convert string entered to a number

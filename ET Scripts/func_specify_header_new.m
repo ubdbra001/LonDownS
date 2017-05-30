@@ -1,9 +1,9 @@
 function headerOut = func_specify_header_new(analyses, windows, event)
 
-headerOut = {'Participant,Task type,Trial Type,Order,Trial number,Start marker name,Start marker time,Trial length (ms),Samples in trial'};
-eventHeader = {'End marker,Time between Markers (ms),Samples between markers'};
-quadHeader_opt = {'Samples in window' 'Total looking' 'Top Left' 'Top Right' 'Bottom Left' 'Bottom Right'};
-secHeader_opt  =  {'Samples in window' 'Total looking' 'Top Left' 'Bottom' 'Top Right'};
+headerOut = {'Participant,Task_type,Trial_Type,Order,Trial_number,Start_marker_name,Start_marker_time,Trial_length_(ms),Samples_in_trial'};
+eventHeader = {'End_marker,Time_between_Markers_(ms),Samples_between_markers'};
+quadHeader_opt = {'Samples_in_window' 'Total_looking' 'Top_Left' 'Top_Right' 'Bottom_Left' 'Bottom_Right'};
+secHeader_opt  =  {'Samples_in_window' 'Total_looking' 'Top_Left' 'Bottom' 'Top_Right'};
 
 
 for analysis_n = 1:size(analyses,1)
@@ -12,7 +12,7 @@ for analysis_n = 1:size(analyses,1)
             headerOut = strjoin([headerOut eventHeader], ',');
         case 'section'
             switch event
-                case 'location'
+                case {'location', 'obj_change', 'pos_change'}
                     secHeader = strjoin(quadHeader_opt(2:end),',');
                 case 'object'
                     secHeader = strjoin(secHeader_opt(2:end),',');
@@ -21,7 +21,7 @@ for analysis_n = 1:size(analyses,1)
         case 'window'
             for window_n = 1:length(windows)-1
                 windowTimes     = repmat({sprintf('%d-%d', windows(window_n), windows(window_n+1))}, size(quadHeader_opt));
-                timeWinHeader   = sprintf(sprintf(repmat('%s - %%s,', size(quadHeader_opt)), windowTimes{:}), quadHeader_opt{:});
+                timeWinHeader   = sprintf(sprintf(repmat('%s_%%s,', size(quadHeader_opt)), windowTimes{:}), quadHeader_opt{:});
                 headerOut       = strjoin([headerOut {timeWinHeader(1:end-1)}], ',');
             end
     end
